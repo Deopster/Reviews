@@ -5,7 +5,7 @@ import pandas
 import os
 import string
 class programm:
-    def __init__(self,lang = 'ru',country = 'us',rev_number = None,freeze_colums = 2,freeze_rows = 1,autofilter = False,score=None,sort = 'NEWEST',columns=['Отзыв','кол. совпадений','Теги совпадений', 'Оценка','колнки тегов']):
+    def __init__(self,lang = 'ru',country = 'us',rev_number = None,freeze_colums = 2,freeze_rows = 1,autofilter = False,score=None,sort = 'NEWEST',columns=['Отзыв','кол. совпадений','Теги совпадений', 'Оценка','колонки тегов']):
         self.lang = lang
         self.country = country
         self.rev_number = rev_number
@@ -40,11 +40,11 @@ class programm:
             return "создан путь output"
         return "директория output обнаружена"
     def open(self):
-        file = glob.glob('*.xlsx')
+        file = glob.glob('./input/*.xlsx')
         try:
             tag_data = pandas.read_excel(file[0])
         except IndexError:
-            print("Закиньте в корневую папку с main.py файл с тегами")
+            print("Закиньте в папку input файл с тегами")
             raise
         except Exception:
             print("Неизвестная ошибка")
@@ -53,9 +53,9 @@ class programm:
             print(f"открыт файл {file[0]} в качесте файла тегирования")
         return tag_data
     def parse(self,result,tag_data):
-        table_colums = ['Отзыв', 'кол. совпадений', 'Теги совпадений', 'Оценка', *tag_data.columns,
+        self.table_colums = ['Отзыв', 'кол. совпадений', 'Теги совпадений', 'Оценка', *tag_data.columns,
                         'Дата создания отзыва']
-        data = pandas.DataFrame(columns=table_colums)
+        data = pandas.DataFrame(columns=self.table_colums)
         m = 0
         temp = {}
         temp_tags = []
@@ -68,14 +68,14 @@ class programm:
                     if pandas.notnull(column_data):
                         if temp['Отзыв'].find(column_data) > 0:
                             m += 1
-                            print(column_data, column_name, temp['Отзыв'], "\n")
+                            #print(column_data, column_name, temp['Отзыв'], "\n")
                             temp_tags.append(column_data)
                             # print("да",column_name,temp['Отзыв'])
                             temp[f'{column_name}'] = 1
 
             temp['кол. совпадений'] = sum(list(temp.values())[2:])
             temp['Теги совпадений'] = str(temp_tags)
-            for i in table_colums:
+            for i in self.table_colums:
                 if i not in temp.keys():
                     temp[f'{i}'] = 0
             # print(temp)
@@ -84,7 +84,8 @@ class programm:
             temp_tags.clear()
             temp.clear()
         print('Найдено совпадений: ' + str(m))
-
+        return data
+    def generate_exel(self,data):
         writer = pd.ExcelWriter('./output/results.xlsx')
         data.to_excel(writer, sheet_name='table', index=False, na_rep=0)
         worksheet = writer.sheets['table']
@@ -108,7 +109,7 @@ class programm:
             for i in range(4):
                 worksheet.conditional_format(
                     f"A{str(index)}:{string.ascii_uppercase[len(data.keys()) - 1] + str(index)}", {'type': 'formula',
-                                                                                                   'criteria': f'=${string.ascii_uppercase[table_colums.index("Оценка")]}${index}{crits[i]}',
+                                                                                                   'criteria': f'=${string.ascii_uppercase[self.table_colums.index("Оценка")]}${index}{crits[i]}',
                                                                                                    'format': formats[
                                                                                                        i]})
         writer.save()
