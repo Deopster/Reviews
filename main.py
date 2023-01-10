@@ -7,7 +7,7 @@ import plotly
 import plotly.graph_objs as go
 init = programm()
 result = init.get_parse_data()
-print(init.create())
+init.create()
 tag_data = init.open()
 generated_data = init.parse(result,tag_data)
 init.generate_exel(generated_data)

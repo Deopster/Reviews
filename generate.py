@@ -38,7 +38,6 @@ class programm:
         if not os.path.isdir("./output"):
             os.mkdir("output")
             return "создан путь output"
-        return "директория output обнаружена"
     def open(self):
         file = glob.glob('./input/*.xlsx')
         try:
@@ -84,6 +83,7 @@ class programm:
             temp_tags.clear()
             temp.clear()
         print('Найдено совпадений: ' + str(m))
+        data.to_csv("./output/res.csv", index = None,header=True)
         return data
     def generate_exel(self,data):
         writer = pd.ExcelWriter('./output/results.xlsx')
