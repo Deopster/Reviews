@@ -1,4 +1,4 @@
-@media screen and  (min-width: 320px) and (max-width: 930px) {
+@media (max-width: 1300px) {
 .left_column{
     width: 97%;
 }
@@ -6,11 +6,15 @@
     width: 97%;
 }
 .but{
-    font-size: 5rem;
+    font-size: 5.3rem;
+}
+}
+@media (min-width: 1300px) {
+.but{
+    font-size: 2rem;
 }
 }
 .but{
-    font-size: 2rem;
     align-items: center;
     margin-left: 0.7em;
     height: 3em;

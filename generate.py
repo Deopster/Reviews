@@ -35,9 +35,9 @@ class programm:
             )
         return result
     def create(self):
-        if not os.path.isdir("./output"):
-            os.mkdir("output")
-            return "создан путь output"
+        if not os.path.isdir("./static"):
+            os.mkdir("static")
+            return "создан путь static"
     def open(self):
         file = glob.glob('./input/*.xlsx')
         try:
@@ -83,10 +83,10 @@ class programm:
             temp_tags.clear()
             temp.clear()
         print('Найдено совпадений: ' + str(m))
-        data.to_csv("./output/res.csv", index = None,header=True)
+        data.to_csv("./static/res.csv", index = None,header=True)
         return data
     def generate_exel(self,data):
-        writer = pd.ExcelWriter('./output/results.xlsx')
+        writer = pd.ExcelWriter('./static/results.xlsx')
         data.to_excel(writer, sheet_name='table', index=False, na_rep=0)
         worksheet = writer.sheets['table']
         format1 = writer.book.add_format({'bg_color': '#e0f2cb', 'border': 1})

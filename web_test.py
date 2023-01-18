@@ -8,7 +8,18 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.LUX,dbc.icons.FONT_AWESOME
 
 modal = html.Div(
     [
-        dbc.Button(children="dfdf",download='results.xlsx',external_link=True,href="results.xlsx",),
+html.Div(
+    [
+        dbc.Button(
+            "Download",
+            href="/static/results.xlsx",
+            download="my_data.xlsx",
+            external_link=True,
+            color="primary",
+        ),
+    ]
+),
+        dbc.Button(children="dfdf",download='',external_link=True,href="./output/",),
         dbc.Button(
             "Modal with scrollable body", id="open-body-scroll", n_clicks=0
         ),

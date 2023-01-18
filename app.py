@@ -1,10 +1,11 @@
 from contextlib import redirect_stdout
 import datetime
 from io import StringIO
-import dash
 from dash import Dash, dcc, html, dash_table, Input, Output, callback, State
-import plotly.express as px
 import dash_bootstrap_components as dbc
+import plotly.express as px
+from dash_bootstrap_templates import load_figure_template
+load_figure_template('SLATE')
 
 df = px.data.gapminder()
 years = df.year.unique()
@@ -12,10 +13,10 @@ continents = df.continent.unique()
 
 # stylesheet with the .dbc class
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
-app = Dash(__name__, external_stylesheets=[dbc.themes.LUX,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP])
+app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'])
 
 header = html.H4(
-    "Ui Ux Lab", className="bg-primary text-white p-2 mb-2 text-center"
+    "<Made by Deopster>", className="bg-primary text-white p-2 mb-2 text-center"
 )
 ells = html.Div([
     dcc.Dropdown(['заморозить столбцы', 'Заморозить первую строку', 'Добавить автофильтр'], 'Заморозить первую строку', multi=True,className="pb-3")
@@ -77,13 +78,12 @@ slider = html.Div(
 )
 terminal= html.I(className="fas fa-terminal",style=dict(display='inline',color='white'))
 reload= html.I(className="fas fa-redo",style=dict(display='inline',color='white'))
-download = html.I(className="fas fa-file-download",style=dict(display='inline', color='white'))
+download = html.I(className="fas fa-arrow-down-to-line",style=dict(display='inline', color='white'))
 
 row_content = [
     html.Div([
         dbc.Button(children=reload, id='button',type="reset", n_clicks=0, className="but",size='lg',color="info"),
-        dbc.Button(children=download,href="./output/results.xlsx",download="results.xlsx",external_link=True, color="success",size="lg", className="but"),
-
+        dbc.Button(children=download,href="/static/results.xlsx",download="my_data.xlsx",external_link=True, color="success",size="lg", className="but"),
  html.Div(
     [
         dbc.Button(children=terminal, color="dark", className="but",size="lg",id="open-body-scroll", n_clicks=0),
@@ -128,7 +128,11 @@ controls = dbc.Card(
     [list_data, ells, slider],
     body=True,
 )
-
+template = "SLATE"
+import plotly.graph_objects as go
+fig = go.Figure()
+fig.update_layout(template=template, title="Mt Bruno Elevation")
+#fig.show()
 tab1 = dbc.Tab([dcc.Graph(id="line-chart")], label="Line Chart")
 tab2 = dbc.Tab([dcc.Graph(id="scatter-chart")], label="Scatter Chart")
 tab3 = dbc.Tab([table], label="Table", className="p-0")
