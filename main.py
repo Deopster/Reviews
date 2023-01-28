@@ -1,3 +1,5 @@
+from dash import Dash
+
 from generate import programm
 
 import os
@@ -5,12 +7,50 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly
 import plotly.graph_objs as go
-init = programm()
-result = init.get_parse_data()
-init.create()
-tag_data = init.open()
-generated_data = init.parse(result,tag_data)
-init.generate_exel(generated_data)
+from datetime import date
+
+import dash
+import dash_bootstrap_components as dbc
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output
+import dash
+import dash_html_components as html
+dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
+app = Dash(__name__, external_stylesheets=[dbc.themes.MATERIA,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'], meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0'}])
+categories = ['Category 1', 'Category 2', 'Category 3']
+tags = {
+    'Category 1': ['Tag 1', 'Tag 2', 'Tag 3'],
+    'Category 2': ['Tag 4', 'Tag 5', 'Tag 6'],
+    'Category 3': ['Tag 7', 'Tag 8', 'Tag 9']
+}
+
+sec = html.Div([
+    html.Div([
+        html.H1('Categories'),
+    ], className='row'),
+    html.Div([
+        html.Div([
+            html.H3(category),
+            html.Div([
+                         dcc.Dropdown(
+                             list(tags[category]),
+                             list(tags[category]),
+                             multi=True
+                         )
+            ])
+        ], className='card mb-3 p-2') for category in categories
+    ], className='row')
+], className='container')
+app.layout = dbc.Container([
+    dbc.Row([
+        dbc.Col(sec, md=4),
+        dbc.Col( html.Div([]), md=8),
+    ])
+])
+if __name__ == "__main__":
+    app.run_server(debug=True)
+
 def revies_ammount(data):
     #for i in data['Дата создания отзыва']:
     series1 = np.array([3, 4, 5, 3])

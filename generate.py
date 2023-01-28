@@ -1,6 +1,5 @@
 import pandas as pd
 from google_play_scraper import app, reviews ,Sort,reviews_all
-import glob
 import pandas
 import os
 import string
@@ -39,9 +38,8 @@ class programm:
             os.mkdir("static")
             return "создан путь static"
     def open(self):
-        file = glob.glob('./input/*.xlsx')
         try:
-            tag_data = pandas.read_excel(file[0])
+            tag_data = pandas.read_excel('./input/model.xlsx')
         except IndexError:
             print("Закиньте в папку input файл с тегами")
             raise
@@ -49,7 +47,7 @@ class programm:
             print("Неизвестная ошибка")
             raise
         finally:
-            print(f"открыт файл {file[0]} в качесте файла тегирования")
+            print(f"открыт файл './input/model.xlsx' в качесте файла тегирования")
         return tag_data
     def parse(self,result,tag_data):
         self.table_colums = ['Отзыв', 'кол. совпадений', 'Теги совпадений', 'Оценка', *tag_data.columns,
@@ -84,7 +82,7 @@ class programm:
             temp.clear()
         print('Найдено совпадений: ' + str(m))
         data.to_csv("./static/res.csv", index = None,header=True)
-        return data
+        return data,m
     def generate_exel(self,data):
         writer = pd.ExcelWriter('./static/results.xlsx')
         data.to_excel(writer, sheet_name='table', index=False, na_rep=0)

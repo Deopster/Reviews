@@ -1,30 +1,28 @@
-from contextlib import redirect_stdout
-import datetime
-from io import StringIO
+import os
+import time
+
+import dash
 from dash import Dash, dcc, html, dash_table, Input, Output, callback, State
 import dash_bootstrap_components as dbc
 import plotly.express as px
 from dash_bootstrap_templates import load_figure_template
 load_figure_template('SLATE')
-
+from generate import programm
 df = px.data.gapminder()
 years = df.year.unique()
 continents = df.continent.unique()
 
 # stylesheet with the .dbc class
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
-app = Dash(__name__, external_stylesheets=[dbc.themes.SLATE,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'])
+app = Dash(__name__, use_pages='' ,external_stylesheets=[dbc.themes.MATERIA,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'], meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0'}])
+dash.register_page(__name__,path='/home')
 
 header = html.H4(
     "<Made by Deopster>", className="bg-primary text-white p-2 mb-2 text-center"
 )
 ells = html.Div([
-    dcc.Dropdown(['заморозить столбцы', 'Заморозить первую строку', 'Добавить автофильтр'], 'Заморозить первую строку', multi=True,className="pb-3")
+    dcc.Dropdown(['заморозить столбцы', 'Заморозить первую строку', 'Добавить автофильтр'], 'Заморозить первую строку', multi=True,className="dash-bootstrap mb-2")
 ])
-
-
-
-
 
 
 table = html.Div(
@@ -43,31 +41,28 @@ table = html.Div(
     className="dbc-row-selectable",
 )
 
-
-dropdown = html.Div(
-    [
-        dbc.Label("Сортировка отзывов - сначала:"),
-        dcc.Dropdown(
-            ["Новые", "Старые", "Популярные"],
+number_input = html.Div([
+    dcc.Input(
+            id="dtrue", type="number",
+            debounce=False, placeholder="0 - все отзывы",className="dash-bootstrap p-1 rt"
+        )
+])
+dropdown = html.Div([
+    dcc.Dropdown( ["Новые", "Старые", "Популярные"],
             "Новые",
-            id="indicator",
-            clearable=False,
-        ),
-    ],
-    className="mb-4",
-)
+            id="indicator",className="dash-bootstrap")
+])
+
+
 radio = html.Div(
-    [
-        dbc.Label("Выбор региона выгрузки"),
-        dcc.RadioItems(['Ru','Us'], 'Ru'),
-    ],
-    className="mb-4",
+
 )
+
 list_data = dbc.Row(
     [
         dbc.Col(html.Div(dropdown)),
-        dbc.Col(html.Div(radio))
-    ]
+        dbc.Col(html.Div(number_input)),
+    ],className="mb-2"
 )
 slider = html.Div(
     [
@@ -162,8 +157,8 @@ app.layout = dbc.Container(
                         controls,
                     ],
                 ),
-                        ],width=4,className="left_column"),
-                dbc.Col(tabs, width=8,className="right_column"),
+                        ],md=4,className="left_column"),
+                dbc.Col(tabs, md=8,className="right_column"),
             ],style={'marginLeft':'0'}
         ),
         dcc.Loading([html.Div(id="loading-demo")],fullscreen=True,type='cube',style={'backgroundColor': 'black'}),
@@ -172,17 +167,18 @@ app.layout = dbc.Container(
     className="dbc",
 )
 
-@app.callback(Output("loading-demo", "children"),Output("my-output", "children"), Input('button', 'n_clicks'))
-def run_cript(n_clicks):
-    script_fn = 'main.py'
-    f = StringIO()
-    with redirect_stdout(f):
-        exec(open(script_fn).read())
-    s = f.getvalue()
-    print(s)
-    return ('',f"{s}, данные от { datetime.datetime.now().replace(microsecond=0)}")
-
-
+@app.callback(Output("loading-demo", "children"),Output("my-output", "children"), Input('button', 'n_clicks'),[State('my-output', 'children')])
+def run_cript(n_clicks,text):
+    num = 'Temp for future replace'
+    if n_clicks > 0:
+        print(n_clicks)
+        init = programm()
+        result = init.get_parse_data()
+        init.create()
+        tag_data = init.open()
+        generated_data,num = init.parse(result, tag_data)
+        init.generate_exel(generated_data)
+    return ('',f"{str(num)} matches were found, data from  {time.ctime(os.path.getmtime('./static/results.xlsx'))}")
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
