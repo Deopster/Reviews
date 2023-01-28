@@ -16,8 +16,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import dash
 import dash_html_components as html
-dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
-app = Dash(__name__, external_stylesheets=[dbc.themes.MATERIA,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'], meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0'}])
+dash.register_page(__name__,path='/tags')
 categories = ['Category 1', 'Category 2', 'Category 3']
 tags = {
     'Category 1': ['Tag 1', 'Tag 2', 'Tag 3'],
@@ -42,15 +41,12 @@ sec = html.Div([
         ], className='card mb-3 p-2') for category in categories
     ], className='row')
 ], className='container')
-app.layout = dbc.Container([
+layout = dbc.Container([
     dbc.Row([
         dbc.Col(sec, md=4),
         dbc.Col( html.Div([]), md=8),
     ])
 ])
-if __name__ == "__main__":
-    app.run_server(debug=True)
-
 def revies_ammount(data):
     #for i in data['Дата создания отзыва']:
     series1 = np.array([3, 4, 5, 3])
