@@ -11,9 +11,7 @@ from generate import programm
 df = px.data.gapminder()
 years = df.year.unique()
 continents = df.continent.unique()
-
 # stylesheet with the .dbc class
-
 dash.register_page(__name__,path='/home')
 
 header = html.H4(
@@ -167,7 +165,7 @@ layout = dbc.Container(
 )
 
 @callback(Output("loading-demo", "children"),Output("my-output", "children"), Input('button', 'n_clicks'),[State('my-output', 'children')])
-def run_cript(n_clicks,text):
+def run_script(n_clicks,text):
     num = 'Temp for future replace'
     if n_clicks > 0:
         print(n_clicks)
@@ -176,14 +174,14 @@ def run_cript(n_clicks,text):
         result = init.get_parse_data()
         init.create()
         tag_data = init.open()
-        generated_data,num = init.parse(result, tag_data)
-        init.generate_exel(generated_data)
+        generated_data,num ,df = init.parse(result, tag_data)
+        init.generate_exel(generated_data,df)
+
     return ('',f"{str(num)} matches were found, data from  {time.ctime(os.path.getmtime('./static/results.xlsx'))}")
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
-
 
 callback(
     Output("modal-body-scroll", "is_open"),

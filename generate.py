@@ -56,6 +56,13 @@ class programm:
         m = 0
         temp = {}
         temp_tags = []
+
+        all_data = set()
+        tag_data.fillna('', inplace=True)
+        for i in tag_data.values.tolist():
+            all_data.update(i)
+        df = pd.DataFrame(0, columns=list(all_data)[1::], index=tag_data.keys().tolist())
+
         for index, i in enumerate(result):
             temp['Дата создания отзыва'] = i['at']
             temp['Отзыв'] = i['content']
@@ -65,11 +72,11 @@ class programm:
                     if pandas.notnull(column_data):
                         if temp['Отзыв'].find(column_data) > 0:
                             m += 1
+                            df.at[column_name, column_data] = 1 + df.at[column_name, column_data]
                             #print(column_data, column_name, temp['Отзыв'], "\n")
                             temp_tags.append(column_data)
-                            print("да",column_name,column_data,temp['Отзыв'])
+                            #print("да",column_name,column_data,temp['Отзыв'])
                             temp[f'{column_name}'] = 1
-
             temp['кол. совпадений'] = sum(list(temp.values())[2:])
             temp['Теги совпадений'] = str(temp_tags)
             for i in self.table_colums:
@@ -80,12 +87,14 @@ class programm:
             # data = data.append(temp,ignore_index=True)
             temp_tags.clear()
             temp.clear()
+        print(df)
         print('Найдено совпадений: ' + str(m))
         data.to_csv("./static/res.csv", index = None,header=True)
-        return data,m
-    def generate_exel(self,data):
+        return data,m,df
+    def generate_exel(self,data,df):
         writer = pd.ExcelWriter('./static/results.xlsx')
         data.to_excel(writer, sheet_name='table', index=False, na_rep=0)
+        df.to_excel(writer, sheet_name='tags', index=False, na_rep=0)
         worksheet = writer.sheets['table']
         format1 = writer.book.add_format({'bg_color': '#e0f2cb', 'border': 1})
         format2 = writer.book.add_format({'bg_color': 'ffa799', 'border': 1})

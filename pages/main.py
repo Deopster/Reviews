@@ -1,4 +1,4 @@
-from dash import Dash
+from dash import Dash, callback
 from generate import programm
 import os
 import matplotlib.pyplot as plt
@@ -9,7 +9,7 @@ from datetime import date
 import dash
 from dash import html,dcc
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash
 import pandas as pd
 
@@ -18,6 +18,10 @@ all_data = set()
 df.fillna('',inplace=True)
 for i in df.values.tolist():
     all_data.update(i)
+#print(df.keys())
+data_for_tags = pd.read_excel('./static/results.xlsx',sheet_name='tags')
+print(data_for_tags.at[5,'приложение'])
+
 #print(list(all_data)[1::])
 #print(len(list(all_data)))
 #print([map(lambda num: num, *df.values.tolist())])
@@ -27,28 +31,27 @@ dash.register_page(__name__,path='/tags')
 
 graf = dbc.Card(
     [
-        dbc.CardHeader("This is the header"),
+        dbc.CardHeader("общая статистика анализа тегов"),
         dbc.CardBody(
             [
                 dcc.Graph(
                     figure={
-                        'data': [go.Pie(values=[10, 20, 30], labels=['A', 'B', 'C'], hole=0.85)],
-                        'layout': go.Layout( margin=dict(l=0, r=0, t=0, b=0),
-    legend_orientation="h",)
+                        'data': [go.Pie(values=[data_for_tags[i].sum() for i in data_for_tags], labels=data_for_tags.keys().tolist(), hole=0.85,textinfo='none')],
+                        'layout': go.Layout( margin=dict(l=0, r=0, t=0, b=0),legend_orientation="h",annotations=[dict(text=f'Всего найдено<br>{sum(data_for_tags[i].sum() for i in data_for_tags)}', x=0.5, y=0.5, font_size=20, showarrow=False)])
 
                     },
-                    style={}
+                    style={'height':'auto'}
                 )
             ]
         ),
-        dbc.CardFooter("This is the footer"),
+        dbc.CardFooter("..."),
     ],
     style={},
 )
 sec = html.Div([
     html.Div([
         html.Div([
-            html.H3(category),
+            dbc.Row([html.H4(category)]),
             html.Div([
                          dcc.Dropdown(
                              list(all_data)[1::],
@@ -59,14 +62,39 @@ sec = html.Div([
         ], className='card mb-3 p-2') for category in df.keys().tolist()
     ], className='row')
 ], className='container')
+
+items = ["Item 1"]
+down = dbc.Card(
+    dbc.CardBody([
+    dbc.ListGroup(
+        flush=True,numbered=True,children=dbc.Spinner(html.Div(id="loading-output",style={"margin-top":"4em","margin-bottom":"4em"})),id="hello"
+    )
+    ]),style={"overflowY": "auto", "maxHeight": "90vh"}
+)
+
 layout = dbc.Container([
     dbc.Row([
         dbc.Col(sec, md=3),
         dbc.Col(graf, md=4),
-        dbc.Col(html.Div([]), md=5),
+        dbc.Col(down, md=5),
+        dcc.Input(id='input-id')
     ])
-],fluid=True,
-    className="dbc",)
+],fluid=True,className="dbc",)
+
+@callback(
+    Output("loading-output", "children"),
+    Output('hello', 'children'),
+    [Input('input-id', 'value')],
+    [State('input-id', 'id')]
+)
+def update_output(input_value, input_id):
+    global items
+    if input_id:
+        NANI = programm()
+        dat = NANI.get_parse_data()
+        items = [i['content'] for i in dat]
+    return "",[dbc.ListGroupItem(item) for item in items]
+
 def revies_ammount(data):
     #for i in data['Дата создания отзыва']:
     series1 = np.array([3, 4, 5, 3])
