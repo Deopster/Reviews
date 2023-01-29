@@ -5,64 +5,23 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 app = Dash(__name__, external_stylesheets=[dbc.themes.LUX,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP])
-
-modal = html.Div(
-    [
-html.Div(
-    [
-        dbc.Button(
-            "Download",
-            href="/static/results.xlsx",
-            download="my_data.xlsx",
-            external_link=True,
-            color="primary",
-        ),
-    ]
-),
-        dbc.Button(children="dfdf",download='',external_link=True,href="./output/",),
-        dbc.Button(
-            "Modal with scrollable body", id="open-body-scroll", n_clicks=0
-        ),
-        dbc.Modal(
-            [
-                dbc.ModalHeader(dbc.ModalTitle("Modal with scrollable body")),
-                dbc.ModalBody("fdfdsfsdf",style={'color':'red','background-color':'black'}),
-                dbc.ModalFooter(
-                    dbc.Button(
-                        "Close",
-                        id="close-body-scroll",
-                        className="ms-auto",
-                        n_clicks=0,
-                    )
-                ),
-            ],
-            id="modal-body-scroll",
-            scrollable=True,
-            is_open=False,
-            fullscreen=True
-        ),
-    ]
-)
-app.layout = dbc.Container(
-    [
-        modal
-]
-)
-
-
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
-
-
-app.callback(
-    Output("modal-body-scroll", "is_open"),
-    [
-        Input("open-body-scroll", "n_clicks"),
-        Input("close-body-scroll", "n_clicks"),
-    ],
-    [State("modal-body-scroll", "is_open")],
-)(toggle_modal)
+app.layout = html.Div([
+    html.Div(
+        className='col-12',
+        children=[
+            dcc.FlexBox(
+                id='flex-container',
+                children=[
+                    dcc.Graph(id='graph1'),
+                    dcc.Graph(id='graph2'),
+                    dcc.Graph(id='graph3'),
+                ],
+                flex='row',
+                align='start',
+                justify='start'
+            )
+        ]
+    )
+])
 if __name__ == "__main__":
     app.run_server(debug=True)

@@ -18,33 +18,41 @@ all_data = set()
 df.fillna('',inplace=True)
 for i in df.values.tolist():
     all_data.update(i)
-print(df.keys().tolist())
-print(df)
-print(df['финансовые условия'])
 #print(list(all_data)[1::])
 #print(len(list(all_data)))
 #print([map(lambda num: num, *df.values.tolist())])
 
 
 dash.register_page(__name__,path='/tags')
-categories = ['Category 1', 'Category 2', 'Category 3']
-tags = {
-    'Category 1': ['Tag 1', 'Tag 2', 'Tag 3'],
-    'Category 2': ['Tag 4', 'Tag 5', 'Tag 6'],
-    'Category 3': ['Tag 7', 'Tag 8', 'Tag 9']
-}
 
+graf = dbc.Card(
+    [
+        dbc.CardHeader("This is the header"),
+        dbc.CardBody(
+            [
+                dcc.Graph(
+                    figure={
+                        'data': [go.Pie(values=[10, 20, 30], labels=['A', 'B', 'C'], hole=0.85)],
+                        'layout': go.Layout( margin=dict(l=0, r=0, t=0, b=0),
+    legend_orientation="h",)
+
+                    },
+                    style={}
+                )
+            ]
+        ),
+        dbc.CardFooter("This is the footer"),
+    ],
+    style={},
+)
 sec = html.Div([
-    html.Div([
-        html.H1('Categories'),
-    ], className='row'),
     html.Div([
         html.Div([
             html.H3(category),
             html.Div([
                          dcc.Dropdown(
                              list(all_data)[1::],
-                             list(df['финансовые условия']),
+                             list(df[f"{category}"]),
                              multi=True
                          )
             ])
@@ -53,10 +61,12 @@ sec = html.Div([
 ], className='container')
 layout = dbc.Container([
     dbc.Row([
-        dbc.Col(sec, md=4),
-        dbc.Col( html.Div([]), md=8),
+        dbc.Col(sec, md=3),
+        dbc.Col(graf, md=4),
+        dbc.Col(html.Div([]), md=5),
     ])
-])
+],fluid=True,
+    className="dbc",)
 def revies_ammount(data):
     #for i in data['Дата создания отзыва']:
     series1 = np.array([3, 4, 5, 3])

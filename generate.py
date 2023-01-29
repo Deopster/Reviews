@@ -67,7 +67,7 @@ class programm:
                             m += 1
                             #print(column_data, column_name, temp['Отзыв'], "\n")
                             temp_tags.append(column_data)
-                            # print("да",column_name,temp['Отзыв'])
+                            print("да",column_name,column_data,temp['Отзыв'])
                             temp[f'{column_name}'] = 1
 
             temp['кол. совпадений'] = sum(list(temp.values())[2:])
