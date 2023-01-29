@@ -1,21 +1,31 @@
 from dash import Dash
-
 from generate import programm
-
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 import plotly
 import plotly.graph_objs as go
 from datetime import date
-
 import dash
+from dash import html,dcc
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
 from dash.dependencies import Input, Output
 import dash
-import dash_html_components as html
+import pandas as pd
+
+df = pd.read_excel('./input/model.xlsx')
+all_data = set()
+df.fillna('',inplace=True)
+for i in df.values.tolist():
+    all_data.update(i)
+print(df.keys().tolist())
+print(df)
+print(df['финансовые условия'])
+#print(list(all_data)[1::])
+#print(len(list(all_data)))
+#print([map(lambda num: num, *df.values.tolist())])
+
+
 dash.register_page(__name__,path='/tags')
 categories = ['Category 1', 'Category 2', 'Category 3']
 tags = {
@@ -33,12 +43,12 @@ sec = html.Div([
             html.H3(category),
             html.Div([
                          dcc.Dropdown(
-                             list(tags[category]),
-                             list(tags[category]),
+                             list(all_data)[1::],
+                             list(df['финансовые условия']),
                              multi=True
                          )
             ])
-        ], className='card mb-3 p-2') for category in categories
+        ], className='card mb-3 p-2') for category in df.keys().tolist()
     ], className='row')
 ], className='container')
 layout = dbc.Container([

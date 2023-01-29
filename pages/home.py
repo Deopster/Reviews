@@ -156,9 +156,9 @@ layout = dbc.Container(
                         controls,
                     ],
                 ),
-                        ],md=4,className="left_column"),
-                dbc.Col(tabs, md=8,className="right_column"),
-            ],style={'marginLeft':'0'}
+                        ],md=4),
+                dbc.Col(tabs, md=8),
+            ],style={'marginLeft':'0','marginRight':'0'}
         ),
         dcc.Loading([html.Div(id="loading-demo")],fullscreen=True,type='cube',style={'backgroundColor': 'black'}),
     ],
@@ -170,6 +170,7 @@ layout = dbc.Container(
 def run_cript(n_clicks,text):
     num = 'Temp for future replace'
     if n_clicks > 0:
+        print(n_clicks)
         print(n_clicks)
         init = programm()
         result = init.get_parse_data()
