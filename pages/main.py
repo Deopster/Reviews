@@ -37,7 +37,7 @@ graf = dbc.Card(
                 dcc.Graph(
                     figure={
                         'data': [go.Pie(values=[data_for_tags[i].sum() for i in data_for_tags], labels=data_for_tags.keys().tolist(), hole=0.85,textinfo='none')],
-                        'layout': go.Layout( margin=dict(l=0, r=0, t=0, b=0),legend_orientation="h",annotations=[dict(text=f'Всего найдено<br>{sum(data_for_tags[i].sum() for i in data_for_tags)}', x=0.5, y=0.5, font_size=20, showarrow=False)])
+                        'layout': go.Layout( margin=dict(l=0, r=0, t=0, b=0),legend_orientation="h",annotations=[dict(text=f'Всего найдено<br>{sum(data_for_tags[i].sum() for i in data_for_tags)}', font_size=20, showarrow=False)])
 
                     },
                     style={'height':'auto'}
@@ -90,9 +90,16 @@ layout = dbc.Container([
 def update_output(input_value, input_id):
     global items
     if input_id:
-        NANI = programm()
-        dat = NANI.get_parse_data()
-        items = [i['content'] for i in dat]
+        while True:
+            try:
+                NANI = programm()
+                dat = NANI.get_parse_data()
+                items = [i['content'] for i in dat]
+            except ConnectionResetError:
+                print("Наебнулось")
+                continue
+            break
+
     return "",[dbc.ListGroupItem(item) for item in items]
 
 def revies_ammount(data):
@@ -125,7 +132,7 @@ def ctegory_ammount(data,m):
     print(len(second_3_4))
     print(len(therd_1_2))
     bw = 0.3
-    plt.title(f'найдено тегов по каждому параметру (зелёные в положительных отзывах, жёлтые в нейтральных, красные в отрицательных), всего {m}', fontsize=20)
+    plt.title(f'найдено тегов по каждому параметру (зелёные в положительных отзывах, жёлтые в нейтральных, красные в отрицательных), всего ', fontsize=20)
     for i in range(len(data.keys()[4:-1])):
         plt.text(i, first_5[i], first_5[i], ha='center',fontsize=20)
     for i in range(len(data.keys()[4:-1])):

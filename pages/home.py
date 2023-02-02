@@ -8,6 +8,8 @@ import plotly.express as px
 from dash_bootstrap_templates import load_figure_template
 load_figure_template('SLATE')
 from generate import programm
+import pandas as pd
+import numpy as np
 df = px.data.gapminder()
 years = df.year.unique()
 continents = df.continent.unique()
@@ -15,28 +17,13 @@ continents = df.continent.unique()
 dash.register_page(__name__,path='/home')
 
 header = html.H4(
-    "<Made by Deopster>", className="bg-primary text-white p-2 mb-2 text-center"
+    "<UI UX LAB>", className="bg-primary text-white p-2 mb-2 text-center"
 )
 ells = html.Div([
     dcc.Dropdown(['заморозить столбцы', 'Заморозить первую строку', 'Добавить автофильтр'], 'Заморозить первую строку', multi=True,className="dash-bootstrap mb-2")
 ])
 
 
-table = html.Div(
-    dash_table.DataTable(
-        id="table",
-        columns=[{"name": i, "id": i, "deletable": True} for i in df.columns],
-        data=df.to_dict("records"),
-        page_size=10,
-        editable=True,
-        cell_selectable=True,
-        filter_action="native",
-        sort_action="native",
-        style_table={"overflowX": "auto"},
-        row_selectable="multi",
-    ),
-    className="dbc-row-selectable",
-)
 
 number_input = html.Div([
     dcc.Input(
@@ -70,7 +57,7 @@ slider = html.Div(
 )
 terminal= html.I(className="fas fa-terminal",style=dict(display='inline',color='white'))
 reload= html.I(className="fas fa-redo",style=dict(display='inline',color='white'))
-download = html.I(className="fas fa-arrow-down-to-line",style=dict(display='inline', color='white'))
+download = html.I(className="fas fa-cloud-download",style={'textAlign': 'center','verticalAlign': 'bottom','display':'inline'})
 
 row_content = [
     html.Div([
@@ -120,15 +107,62 @@ controls = dbc.Card(
     [list_data, ells, slider],
     body=True,
 )
-template = "SLATE"
+template = "seaborn"
 import plotly.graph_objects as go
 fig = go.Figure()
-fig.update_layout(template=template, title="Mt Bruno Elevation")
 #fig.show()
-tab1 = dbc.Tab([dcc.Graph(id="line-chart")], label="Line Chart")
-tab2 = dbc.Tab([dcc.Graph(id="scatter-chart")], label="Scatter Chart")
-tab3 = dbc.Tab([table], label="Table", className="p-0")
-tabs = dbc.Card(dbc.Tabs([tab1, tab2, tab3]))
+import plotly.express as px
+
+
+
+data = pd.read_excel('./static/results.xlsx',sheet_name='table')
+temp= []
+all=[]
+first_5=[]
+second_3_4=[]
+therd_1_2=[]
+
+for i in data.keys()[4:-1]:
+    first_5.append(sum(data[data['Оценка'] ==5][f'{i}']))
+    second_3_4.append(sum(data[data['Оценка']==3][f'{i}'])+sum(data[data['Оценка']==4][f'{i}']))
+    therd_1_2.append(sum(data[data['Оценка'] <3][f'{i}']))
+    all.append(temp)
+index = np.arange(len(first_5))
+print(len(data.keys()[4:-1]))
+print(index)
+fig = px.bar(x=data.keys()[4:-1], y=[first_5,second_3_4,therd_1_2], labels=data.keys()[4:-1])
+fig.update_layout(template=template,margin=dict(l=0, r=0, t=0, b=0),legend_orientation="v",)
+
+#for i in data['Оценка']:
+graf = dbc.Card(
+    [
+        dbc.CardBody(
+            [
+                dcc.Graph(
+                    figure={
+                        'data': [go.Pie(values=[len(df[data['Оценка'] == 1]),len(df[data['Оценка'] == 2]),len(df[data['Оценка'] == 3]),len(df[data['Оценка'] == 4]),len(df[data['Оценка'] == 5])], labels=['оценка 1','оценка 2','оценка 3','оценка 4','оценка 5'], hole=0.85)],
+                        'layout': go.Layout( margin=dict(l=0, r=0, t=0, b=0),showlegend=False,annotations=[dict(text=f'Всего отзывов <br>{len(data["Оценка"])}', x=0.5, y=0.5, font_size=20, showarrow=False)])
+
+                    },
+                    style={'height':'auto'}
+                )
+            ]
+        ),
+        #dbc.CardFooter("Соотношение отзывов"),
+    ],
+    style={},
+)
+
+
+
+tabs = dbc.Card([
+dbc.CardBody(
+            [
+dcc.Graph(figure=fig,style={'height':'auto'})
+            ]
+        ),
+]
+)
 
 layout = dbc.Container(
     [
@@ -136,8 +170,9 @@ layout = dbc.Container(
         dbc.Row(
             [
 
-                dbc.Col(
-                    [
+                dbc.Col([
+
+            html.Div([
                 dbc.Row(
                     [
                         buttonrow,
@@ -154,9 +189,25 @@ layout = dbc.Container(
                         controls,
                     ],
                 ),
-                        ],md=4),
-                dbc.Col(tabs, md=8),
-            ],style={'marginLeft':'0','marginRight':'0'}
+
+
+
+                        ], className='container')],md=3,className="mb-3"),
+                dbc.Col([
+                    html.Div([
+dbc.Row(
+            [
+                                graf
+                ])
+                ], className='container')], md=3,className="mb-3"),
+            dbc.Col([
+                    html.Div([
+dbc.Row(
+            [
+                                tabs
+                ])
+                ], className='container')], md=6,className="mb-3"),
+            ]
         ),
         dcc.Loading([html.Div(id="loading-demo")],fullscreen=True,type='cube',style={'backgroundColor': 'black'}),
     ],
@@ -177,7 +228,7 @@ def run_script(n_clicks,text):
         generated_data,num ,df = init.parse(result, tag_data)
         init.generate_exel(generated_data,df)
 
-    return ('',f"{str(num)} matches were found, data from  {time.ctime(os.path.getmtime('./static/results.xlsx'))}")
+    return ('',f"Данные от  {time.ctime(os.path.getmtime('./static/results.xlsx'))}")
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open

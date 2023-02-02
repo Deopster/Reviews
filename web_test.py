@@ -46,4 +46,13 @@ def update_divs(pathname, current_divs):
     return divs[start_index:end_index]
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    import plotly.express as px
+
+    df = px.data.medals_long()
+    print(df['medal'])
+    print(df['count'])
+    print(df['nation'])
+    fig = px.bar(df, x="medal", y="count", color="nation",
+                 pattern_shape="nation", pattern_shape_sequence=[".", "x", "+"])
+    fig.show()
+    #app.run_server(debug=True)
