@@ -27,7 +27,6 @@ print(data_for_tags.at[5,'приложение'])
 #print([map(lambda num: num, *df.values.tolist())])
 
 
-dash.register_page(__name__,path='/tags')
 
 graf = dbc.Card(
     [
@@ -92,11 +91,15 @@ def update_output(input_value, input_id):
     if input_id:
         while True:
             try:
+                print("Вхождение")
                 NANI = programm()
                 dat = NANI.get_parse_data()
                 items = [i['content'] for i in dat]
             except ConnectionResetError:
                 print("Наебнулось")
+                continue
+            except Exception:
+                print("Наебнулось иначе")
                 continue
             break
 

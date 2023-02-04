@@ -166,7 +166,6 @@ dcc.Graph(figure=fig,style={'height':'auto'})
 
 layout = dbc.Container(
     [
-        header,
         dbc.Row(
             [
 

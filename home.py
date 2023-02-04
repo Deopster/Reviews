@@ -167,32 +167,6 @@ app.layout = dbc.Container(
     className="dbc",
 )
 
-@app.callback(Output("loading-demo", "children"),Output("my-output", "children"), Input('button', 'n_clicks'),[State('my-output', 'children')])
-def run_cript(n_clicks,text):
-    num = 'Temp for future replace'
-    if n_clicks > 0:
-        print(n_clicks)
-        init = programm()
-        result = init.get_parse_data()
-        init.create()
-        tag_data = init.open()
-        generated_data,num = init.parse(result, tag_data)
-        init.generate_exel(generated_data)
-    return ('',f"{str(num)} matches were found, data from  {time.ctime(os.path.getmtime('./static/results.xlsx'))}")
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
-
-
-app.callback(
-    Output("modal-body-scroll", "is_open"),
-    [
-        Input("open-body-scroll", "n_clicks"),
-        Input("close-body-scroll", "n_clicks"),
-    ],
-    [State("modal-body-scroll", "is_open")],
-)(toggle_modal)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
