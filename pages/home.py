@@ -14,7 +14,6 @@ df = px.data.gapminder()
 years = df.year.unique()
 continents = df.continent.unique()
 # stylesheet with the .dbc class
-dash.register_page(__name__,path='/home')
 
 header = html.H4(
     "<UI UX LAB>", className="bg-primary text-white p-2 mb-2 text-center"
@@ -127,20 +126,20 @@ for i in data.keys()[4:-1]:
     second_3_4.append(sum(data[data['Оценка']==3][f'{i}'])+sum(data[data['Оценка']==4][f'{i}']))
     therd_1_2.append(sum(data[data['Оценка'] <3][f'{i}']))
     all.append(temp)
-index = np.arange(len(first_5))
-print(len(data.keys()[4:-1]))
-print(index)
+#print(len(data.keys()[4:-1]))
+#print(index)
 fig = px.bar(x=data.keys()[4:-1], y=[first_5,second_3_4,therd_1_2], labels=data.keys()[4:-1])
 fig.update_layout(template=template,margin=dict(l=0, r=0, t=0, b=0),legend_orientation="v",)
 
 #for i in data['Оценка']:
+
 graf = dbc.Card(
     [
         dbc.CardBody(
             [
                 dcc.Graph(
                     figure={
-                        'data': [go.Pie(values=[len(df[data['Оценка'] == 1]),len(df[data['Оценка'] == 2]),len(df[data['Оценка'] == 3]),len(df[data['Оценка'] == 4]),len(df[data['Оценка'] == 5])], labels=['оценка 1','оценка 2','оценка 3','оценка 4','оценка 5'], hole=0.85)],
+                        'data': [go.Pie(values=list(len(df.loc[data['Оценка']== i]) for i in range(1,5)), labels=['оценка 1','оценка 2','оценка 3','оценка 4','оценка 5'], hole=0.85)],
                         'layout': go.Layout( margin=dict(l=0, r=0, t=0, b=0),showlegend=False,annotations=[dict(text=f'Всего отзывов <br>{len(data["Оценка"])}', x=0.5, y=0.5, font_size=20, showarrow=False)])
 
                     },
@@ -150,7 +149,6 @@ graf = dbc.Card(
         ),
         #dbc.CardFooter("Соотношение отзывов"),
     ],
-    style={},
 )
 
 
@@ -214,30 +212,4 @@ dbc.Row(
     className="dbc",
 )
 
-@callback(Output("loading-demo", "children"),Output("my-output", "children"), Input('button', 'n_clicks'),[State('my-output', 'children')])
-def run_script(n_clicks,text):
-    num = 'Temp for future replace'
-    if n_clicks > 0:
-        print(n_clicks)
-        print(n_clicks)
-        init = programm()
-        result = init.get_parse_data()
-        init.create()
-        tag_data = init.open()
-        generated_data,num ,df = init.parse(result, tag_data)
-        init.generate_exel(generated_data,df)
 
-    return ('',f"Данные от  {time.ctime(os.path.getmtime('./static/results.xlsx'))}")
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
-
-callback(
-    Output("modal-body-scroll", "is_open"),
-    [
-        Input("open-body-scroll", "n_clicks"),
-        Input("close-body-scroll", "n_clicks"),
-    ],
-    [State("modal-body-scroll", "is_open")],
-)(toggle_modal)

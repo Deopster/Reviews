@@ -80,30 +80,6 @@ layout = dbc.Container([
     ])
 ],fluid=True,className="dbc",)
 
-@callback(
-    Output("loading-output", "children"),
-    Output('hello', 'children'),
-    [Input('input-id', 'value')],
-    [State('input-id', 'id')]
-)
-def update_output(input_value, input_id):
-    global items
-    if input_id:
-        while True:
-            try:
-                print("Вхождение")
-                NANI = programm()
-                dat = NANI.get_parse_data()
-                items = [i['content'] for i in dat]
-            except ConnectionResetError:
-                print("Наебнулось")
-                continue
-            except Exception:
-                print("Наебнулось иначе")
-                continue
-            break
-
-    return "",[dbc.ListGroupItem(item) for item in items]
 
 def revies_ammount(data):
     #for i in data['Дата создания отзыва']:
