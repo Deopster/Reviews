@@ -31,9 +31,16 @@ number_input = html.Div([
         )
 ])
 dropdown = html.Div([
-    dcc.Dropdown( ["Новые", "Старые", "Популярные"],
-            "Новые",
-            id="indicator",className="dash-bootstrap")
+    dcc.Dropdown(
+    options=[
+        {'label': 'Новые', 'value': 'NEWEST'},
+        {'label': 'Ревенантные', 'value': 'MOST_RELEVANT'},
+   ],
+    value='NEWEST',
+    id="indicator",
+    className="dash-bootstrap",
+    clearable=False
+            )
 ])
 
 
@@ -116,7 +123,6 @@ import plotly.express as px
 
 data = pd.read_excel('./static/results.xlsx',sheet_name='table')
 temp= []
-all=[]
 first_5=[]
 second_3_4=[]
 therd_1_2=[]
@@ -125,13 +131,13 @@ for i in data.keys()[4:-1]:
     first_5.append(sum(data[data['Оценка'] ==5][f'{i}']))
     second_3_4.append(sum(data[data['Оценка']==3][f'{i}'])+sum(data[data['Оценка']==4][f'{i}']))
     therd_1_2.append(sum(data[data['Оценка'] <3][f'{i}']))
-    all.append(temp)
 #print(len(data.keys()[4:-1]))
 #print(index)
 fig = px.bar(x=data.keys()[4:-1], y=[first_5,second_3_4,therd_1_2], labels=data.keys()[4:-1])
 fig.update_layout(template=template,margin=dict(l=0, r=0, t=0, b=0),legend_orientation="v",)
 
-#for i in data['Оценка']:
+#print([len(df[data['Оценка'] == 1]),len(df[data['Оценка'] == 2]),len(df[data['Оценка'] == 3]),len(df[data['Оценка'] == 4]),len(df[data['Оценка'] == 5])])
+#print(list(len(df.loc[data['Оценка']== i]) for i in range(1,6)))
 
 graf = dbc.Card(
     [
@@ -139,7 +145,7 @@ graf = dbc.Card(
             [
                 dcc.Graph(
                     figure={
-                        'data': [go.Pie(values=list(len(df.loc[data['Оценка']== i]) for i in range(1,5)), labels=['оценка 1','оценка 2','оценка 3','оценка 4','оценка 5'], hole=0.85)],
+                        'data': [go.Pie(values=list(len(df.loc[data['Оценка']== i]) for i in range(1,6)), labels=['оценка 1','оценка 2','оценка 3','оценка 4','оценка 5'], hole=0.85)],
                         'layout': go.Layout( margin=dict(l=0, r=0, t=0, b=0),showlegend=False,annotations=[dict(text=f'Всего отзывов <br>{len(data["Оценка"])}', x=0.5, y=0.5, font_size=20, showarrow=False)])
 
                     },
@@ -156,7 +162,7 @@ graf = dbc.Card(
 tabs = dbc.Card([
 dbc.CardBody(
             [
-dcc.Graph(figure=fig,style={'height':'auto'})
+            dcc.Graph(figure=fig,style={'height':'auto'})
             ]
         ),
 ]

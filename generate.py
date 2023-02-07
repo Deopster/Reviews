@@ -12,23 +12,24 @@ class programm:
         self.freeze_rows = freeze_rows
         self.autofilter =autofilter
         self.score = score
-        sort = Sort.NEWEST
+        self.sort = sort
     def get_parse_data(self):
+        params = {"NEWEST": Sort.NEWEST, "MOST_RELEVANT": Sort.MOST_RELEVANT}
         if self.rev_number is None:
             result = reviews_all(
                 'com.bssys.roscapretail',
-                sleep_milliseconds=0,  # defaults to 0
-                lang=self.lang,  # defaults to 'en'
-                country=self.country,  # defaults to 'us'
-                sort=Sort.NEWEST,  # defaults to Sort.MOST_RELEVANT
-                filter_score_with=self.score  # defaults to None(means all score)
+                sleep_milliseconds=0,
+                lang=self.lang,
+                country=self.country,
+                sort=params[self.sort],
+                filter_score_with=self.score
             )
         else:
-            result, continuation_token = reviews(
+            result = reviews(
                 'com.bssys.roscapretail',
                 lang=self.lang,  # defaults to 'en'
                 country=self.country,  # defaults to 'us'
-                sort=Sort.NEWEST,  # defaults to Sort.NEWEST
+                sort=params[self.sort],  # defaults to Sort.NEWEST
                 count=self.rev_number,  # defaults to 100
                 filter_score_with=self.score  # defaults to None(means all score)
             )
@@ -69,13 +70,14 @@ class programm:
             temp['Оценка'] = i['score']
             for column_name in tag_data.columns:
                 for column_data in tag_data[f'{column_name}']:
-                    if pandas.notnull(column_data):
-                        if temp['Отзыв'].find(column_data) > 0:
+                    if column_data != '':
+                        if temp['Отзыв'].lower().count(column_data) > 0:
                             m += 1
                             df.at[column_name, column_data] = 1 + df.at[column_name, column_data]
-                            #print(column_data, column_name, temp['Отзыв'], "\n")
-                            temp_tags.append(column_data)
-                            #print("да",column_name,column_data,temp['Отзыв'])
+                            # print(column_data, column_name, temp['Отзыв'], "\n")
+                            # temp_tags.append(column_data)
+                            temp_tags = " ".join([temp_tags, column_data])
+                            print("да", column_name, column_data, temp['Отзыв'])
                             temp[f'{column_name}'] = 1
             temp['кол. совпадений'] = sum(list(temp.values())[2:])
             temp['Теги совпадений'] = str(temp_tags)
@@ -85,11 +87,10 @@ class programm:
             # print(temp)
             data = pandas.concat([data, pd.DataFrame([temp])], )
             # data = data.append(temp,ignore_index=True)
-            temp_tags.clear()
+            temp_tags = ''
             temp.clear()
-        print(df)
+        #print(df)
         print('Найдено совпадений: ' + str(m))
-        data.to_csv("./static/res.csv", index = None,header=True)
         return data,m,df
     def generate_exel(self,data,df):
         writer = pd.ExcelWriter('./static/results.xlsx')

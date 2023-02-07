@@ -20,6 +20,8 @@ for i in df.values.tolist():
     all_data.update(i)
 #print(df.keys())
 data_for_tags = pd.read_excel('./static/results.xlsx',sheet_name='tags')
+reva = pd.read_excel('./static/results.xlsx',usecols=['Отзыв', 'Теги совпадений'])
+
 print(data_for_tags.at[5,'приложение'])
 
 #print(list(all_data)[1::])
@@ -43,9 +45,9 @@ graf = dbc.Card(
                 )
             ]
         ),
-        dbc.CardFooter("..."),
+        #dbc.CardFooter("..."),
     ],
-    style={},
+    className="mb-3",
 )
 sec = html.Div([
     html.Div([
@@ -70,15 +72,50 @@ down = dbc.Card(
     )
     ]),style={"overflowY": "auto", "maxHeight": "90vh"}
 )
+upl = dbc.Card(
+    dbc.CardBody([
+        dbc.Alert(
+            "Файл был успешно загружен",
+            id="alert-fade",
+            dismissable=True,
+            is_open=True,
+        ),
+html.Hr(),
+dcc.Upload(
+            id="upload-data",
+            children=html.Div(
+                ["Перетяни сюда новый файл тегирования "]
+            ),
+            style={
+                "width": "100%",
+                "height": "60px",
+                "lineHeight": "60px",
+                "borderWidth": "1px",
+                "borderStyle": "dashed",
+                "borderRadius": "5px",
+                "textAlign": "center",
+            },
+            multiple=False,
+            last_modified=123
+        ),
+        html.Hr(),
+        html.H2("Список файлов"),
+        html.Ul(id="file-list"),
+    ]),className="mb-3"
+)
 
 layout = dbc.Container([
     dbc.Row([
         dbc.Col(sec, md=3),
-        dbc.Col(graf, md=4),
+        dbc.Col([graf,upl], md=4),
         dbc.Col(down, md=5),
         dcc.Input(id='input-id')
     ])
 ],fluid=True,className="dbc",)
+
+
+
+
 
 
 def revies_ammount(data):
