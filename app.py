@@ -5,29 +5,25 @@ from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import base64
 # Connect to main app.py file
+import plotly.graph_objs as go
 from generate import programm
 from flask import Flask, send_from_directory
 # Connect to your app pages
 from pages import home,main
 from urllib.parse import quote as urlquote
-
+from components import grafpath
 # Connect the navbar to the index
 from components import navbar
 import dash
 import pandas as pd
 import dash_bootstrap_components as dbc
 app = dash.Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'], meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0'}],suppress_callback_exceptions=True)
-
-reva = pd.read_excel('./static/results.xlsx',usecols=['Отзыв', 'Теги совпадений'])
-for number in range(len(reva)):
-    for i in list(filter(None,str(reva['Теги совпадений'][number]).split(" ")[1:])):
-        reva.at[number, 'Отзыв'] = reva['Отзыв'][number].replace(i,'{trigs}'+i+'{/trigs}')
-
 nav = navbar.Navbar()
 # Define the index page layout
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     nav,
+    dcc.Store(id='store'),
     html.Div(id='page-content', children=[]),
 ])
 
@@ -54,7 +50,7 @@ def display_page(pathname):
         return cont404
 
 # Run the app on localhost:8050
-@app.callback(Output("loading-demo", "children"),Output("my-output", "children"), Input('button', 'n_clicks'),[State('my-output', 'children')])
+@app.callback( Output("loading-demo", "children"),Output("my-output", "children"), Input('button', 'n_clicks'),[State('my-output', 'children')])
 def run_script(n_clicks,text):
     if n_clicks > 0:
         init = programm()
@@ -63,7 +59,7 @@ def run_script(n_clicks,text):
         tag_data = init.open()
         generated_data,num ,df = init.parse(result, tag_data)
         init.generate_exel(generated_data,df)
-
+        grafpath.getdata()
     return ('',f"Данные от  {time.ctime(os.path.getmtime('./static/results.xlsx'))}")
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
@@ -72,11 +68,26 @@ def toggle_modal(n1, n2, is_open):
 @app.callback(
     Output("loading-output", "children"),
     Output('hello', 'children'),
-    [Input('input-id', 'value')],
-    [State('input-id', 'id')]
+    Input('hello', 'children'),
 )
-def update_output(input_value, input_id):
-    return "",[dbc.ListGroupItem(item) for item in reva['Отзыв']]
+def update_output(n):
+    return "",grafpath.getRev()
+@app.callback(
+Output('AllDataGraf', 'children'),
+Output('cat_list', 'children'),
+Input('AllDataGraf', 'children'),
+Input('cat_list', 'children'),
+)
+def upd(nd,nf):
+    return grafpath.graf_main_2() ,grafpath.graf_main_1()
+@app.callback(
+Output('rev_ammount', 'children'),
+Output('tag_stats', 'children'),
+Input('rev_ammount', 'children'),
+Input('tag_stats', 'children'),
+)
+def upd(nd,nf):
+    return grafpath.graf_home_1(),grafpath.graf_home_2()
 @app.callback(
     Output("modal-body-scroll", "is_open"),
     [
@@ -123,7 +134,7 @@ def file_download_link(filename):
     Output("file-list", "children"),
     [Input("upload-data", "filename"), Input("upload-data", "contents")],
 )
-def update_output(uploaded_filenames, uploaded_file_contents):
+def update_output_upl(uploaded_filenames, uploaded_file_contents):
     """Save uploaded files and regenerate the file list."""
 
     if uploaded_filenames is not None and uploaded_file_contents is not None:
