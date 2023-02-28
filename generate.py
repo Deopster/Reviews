@@ -76,7 +76,7 @@ class programm:
                             df.at[column_name, column_data] = 1 + df.at[column_name, column_data]
                             # print(column_data, column_name, temp['Отзыв'], "\n")
                             # temp_tags.append(column_data)
-                            temp_tags = " ".join([temp_tags, column_data])
+                            temp_tags = " ~ ".join([temp_tags, column_data])
                             print("да", column_name, column_data, temp['Отзыв'])
                             temp[f'{column_name}'] = 1
             temp['кол. совпадений'] = sum(list(temp.values())[2:])

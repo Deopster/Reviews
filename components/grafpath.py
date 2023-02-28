@@ -4,7 +4,7 @@ from dash import Dash, dcc, html, dash_table, Input, Output, callback, State
 import pandas as pd
 from components import grafpath
 import dash_bootstrap_components as dbc
-
+import re
 #!!!Оптимизировать этот кусок
 
 # НЕ ЗАБУДЬ
@@ -16,8 +16,19 @@ def getdata():
     df = pd.read_excel('./input/model.xlsx')
     #main
     for number in range(len(reva)):
-        for i in list(filter(None, str(reva['Теги совпадений'][number]).split(" ")[1:])):
-            reva.at[number, 'Отзыв'] = reva['Отзыв'][number].replace(i, '{trigs}' + i + '{/trigs}')
+        #print(str(reva['Теги совпадений'][number]).split(" ~ ")[1:])
+        for i in str(reva['Теги совпадений'][number]).split(" ~ "):
+            if i!='':
+                fl=True
+                repl=re.findall(r"\w+t}",reva['Отзыв'][number].lower().replace(i, '{st}' + i + '{ft}'))
+                for index in range(len(repl)-1):
+                    if repl[index] == repl[index+1]:
+                        fl=False
+                if fl:
+                    reva.at[number, 'Отзыв'] = reva['Отзыв'][number].lower().replace(i, '{st}' + i + '{ft}')
+        reva.at[number, 'Теги совпадений'] = str(reva['Теги совпадений'][number]).replace(" ~ ", ' ')
+        reva.at[number, 'Отзыв'] = reva['Отзыв'][number].replace("{st}", "**").replace("{ft}", "**")
+
     #main
     all_data = set()
     df.fillna('', inplace=True)
@@ -84,7 +95,9 @@ def graf_main_2():
     #print("The func was triggered 4")
     return res
 def getRev():
-    #print("The func was triggered 5-comments")
-    return [dbc.ListGroupItem(item) for item in reva['Отзыв']]
+    return [dbc.ListGroupItem([reva['Теги совпадений'][i],dcc.Markdown(reva['Отзыв'][i])]) for i in range(len(reva))]
+def info():
+    global data
+    return data
 
 getdata()

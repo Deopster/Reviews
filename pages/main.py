@@ -24,16 +24,28 @@ graf = dbc.Card(
     className="mb-3",
 )
 sec = html.Div([
-    html.Div(id="cat_list",children="", className='row')
+    html.Div(id="cat_list",children="", className='row',style={"overflowY": "auto", "maxHeight": "90vh"})
 ], className='container')
-
+search_bar = dbc.Row(
+    [
+        dbc.Col(dbc.Input(type="search", placeholder="Search",id="ser_input")),
+        dbc.Col(
+            dbc.Button(
+                "Search", color="primary", className="ms-2", n_clicks=0,id="ser"
+            ),
+            width="auto",
+        ),
+    ],
+    className="g-0 ms-auto flex-nowrap mt-3 mt-md-0",
+    align="center",
+)
 items = ["Item 1"]
-down = dbc.Card(
-    dbc.CardBody([
-    dbc.ListGroup(
-        flush=True,numbered=True,children=dbc.Spinner(html.Div(id="loading-output",style={"margin-top":"4em","margin-bottom":"4em"})),id="hello"
+down = dbc.Card([
+    dbc.CardHeader(search_bar),
+    dbc.CardBody(
+    dbc.ListGroup(flush=True,numbered=True,children=dbc.Spinner(html.Div(id="loading-output",style={"margin-top":"4em","margin-bottom":"4em"})),id="hello"),style={"overflowY": "auto", "maxHeight": "90vh"}
     )
-    ]),style={"overflowY": "auto", "maxHeight": "90vh"}
+    ]
 )
 upl = dbc.Card(
     dbc.CardBody([
@@ -44,23 +56,8 @@ upl = dbc.Card(
             is_open=True,
         ),
 html.Hr(),
-dcc.Upload(
-            id="upload-data",
-            children=html.Div(
-                ["Перетяни сюда новый файл тегирования "]
-            ),
-            style={
-                "width": "100%",
-                "height": "60px",
-                "lineHeight": "60px",
-                "borderWidth": "1px",
-                "borderStyle": "dashed",
-                "borderRadius": "5px",
-                "textAlign": "center",
-            },
-            multiple=False,
-            last_modified=123
-        ),
+    dcc.Upload(html.A('Upload File'))
+    ,
         html.Hr(),
         html.H2("Список файлов"),
         html.Ul(id="file-list"),

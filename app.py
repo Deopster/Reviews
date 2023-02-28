@@ -9,11 +9,11 @@ import plotly.graph_objs as go
 from generate import programm
 from flask import Flask, send_from_directory
 # Connect to your app pages
-from pages import home,main
+from pages import home,main,auth,custom
 from urllib.parse import quote as urlquote
 from components import grafpath
 # Connect the navbar to the index
-from components import navbar
+from components import navbar,filelist
 import dash
 import pandas as pd
 import dash_bootstrap_components as dbc
@@ -42,14 +42,53 @@ cont404= html.Div([
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    if pathname == '/page1':
-        return home.layout
+    print(pathname)
     if pathname == '/page2':
         return main.layout
+    elif pathname == '/page1':
+        return home.layout
+    elif pathname == '/page3':
+        return custom.layout
+    elif pathname =='/':
+        return auth.layout
     else: # if redirected to unknown link
         return cont404
 
 # Run the app on localhost:8050
+
+
+@app.callback(
+    Output("toggle-modal-1", "is_open"),
+    [
+        Input("open-lg-new", "n_clicks"),
+        Input("open-toggle-modal-1", "n_clicks"),
+        Input("open-toggle-modal-2", "n_clicks"),
+    ],
+    [State("toggle-modal-1", "is_open")],
+)
+def toggle_modal_1(n0, n1, n2, is_open):
+    mv = filelist.uploaded_files()
+    if n0 or n1 or n2:
+        return not is_open
+    return is_open
+
+
+@app.callback(
+    Output("toggle-modal-2", "is_open"),
+    [
+        Input("open-toggle-modal-2", "n_clicks"),
+        Input("open-toggle-modal-1", "n_clicks"),
+    ],
+    [State("toggle-modal-2", "is_open")],
+)
+def toggle_modal_2(n2, n1, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
+
+
+
 @app.callback( Output("loading-demo", "children"),Output("my-output", "children"), Input('button', 'n_clicks'),[State('my-output', 'children')])
 def run_script(n_clicks,text):
     if n_clicks > 0:
@@ -65,20 +104,22 @@ def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
+
 @app.callback(
-    Output("loading-output", "children"),
     Output('hello', 'children'),
     Input('hello', 'children'),
+    Input('ser', 'n_clicks'),
 )
-def update_output(n):
-    return "",grafpath.getRev()
+def update_output_1(n,dat):
+    return grafpath.getRev()
 @app.callback(
 Output('AllDataGraf', 'children'),
 Output('cat_list', 'children'),
 Input('AllDataGraf', 'children'),
 Input('cat_list', 'children'),
 )
-def upd(nd,nf):
+def updj(nd,nf):
     return grafpath.graf_main_2() ,grafpath.graf_main_1()
 @app.callback(
 Output('rev_ammount', 'children'),
@@ -104,18 +145,17 @@ def toggle_modal(n1, n2, is_open):
 
 
 
+
 UPLOAD_DIRECTORY = "/tretafdtvd"
 
 
 def save_file(name, content):
-    """Decode and store a file uploaded with Plotly Dash."""
     data = content.encode("utf8").split(b";base64,")[1]
     with open(os.path.join(UPLOAD_DIRECTORY, name), "wb") as fp:
         fp.write(base64.decodebytes(data))
 
 
 def uploaded_files():
-    """List the files in the upload directory."""
     files = []
     for filename in os.listdir(UPLOAD_DIRECTORY):
         path = os.path.join(UPLOAD_DIRECTORY, filename)
@@ -125,7 +165,6 @@ def uploaded_files():
 
 
 def file_download_link(filename):
-    """Create a Plotly Dash 'A' element that downloads a file from the app."""
     location = "/download/{}".format(urlquote(filename))
     return html.A(filename, href=location)
 
@@ -135,8 +174,6 @@ def file_download_link(filename):
     [Input("upload-data", "filename"), Input("upload-data", "contents")],
 )
 def update_output_upl(uploaded_filenames, uploaded_file_contents):
-    """Save uploaded files and regenerate the file list."""
-
     if uploaded_filenames is not None and uploaded_file_contents is not None:
         for name, data in zip(uploaded_filenames, uploaded_file_contents):
             save_file(name, data)
