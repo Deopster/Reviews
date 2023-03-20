@@ -96,7 +96,7 @@ def run_script(n_clicks,text):
         result = init.get_parse_data()
         init.create()
         tag_data = init.open()
-        generated_data,num ,df = init.parse(result, tag_data)
+        generated_data ,df = init.parse(result, tag_data)
         init.generate_exel(generated_data,df)
         grafpath.getdata()
     return ('',f"Данные от  {time.ctime(os.path.getmtime('./static/results.xlsx'))}")
@@ -124,11 +124,18 @@ def updj(nd,nf):
 @app.callback(
 Output('rev_ammount', 'children'),
 Output('tag_stats', 'children'),
+Output('cat_stats', 'children'),
 Input('rev_ammount', 'children'),
 Input('tag_stats', 'children'),
 )
 def upd(nd,nf):
-    return grafpath.graf_home_1(),grafpath.graf_home_2()
+    return grafpath.graf_home_1(),grafpath.graf_home_2(),grafpath.graf_home_3()
+@app.callback(
+Output('rev_stats', 'children'),
+Input('cat_chose_holder', 'value'),
+)
+def upd(nd):
+    return grafpath.graf_home_4(nd)
 @app.callback(
     Output("modal-body-scroll", "is_open"),
     [

@@ -109,9 +109,19 @@ stateline = dbc.Card(
                         ], className="p-2"),
                     ],className=["mb-3"]
                 )
+chose = dbc.Card(
+    dbc.CardBody(html.Div([
+        dcc.Dropdown(options= grafpath.Get_keys(),
+        value=grafpath.Get_keys()[0],
+        id="cat_chose_holder",
+        className="dash-bootstrap",
+        clearable=False
+                )
+    ]))
+                )
 controls = dbc.Card(
     [list_data, ells, slider],
-    body=True,
+    body=True,className=["mb-3"]
 )
 
 graf = dbc.Card(
@@ -154,6 +164,11 @@ layout = dbc.Container(
                         controls,
                     ],
                 ),
+                dbc.Row(
+                    [
+                        chose,
+                    ],
+                ),
 
 
 
@@ -172,6 +187,32 @@ dbc.Row(
                                 tabs
                 ])
                 ], className='container')], md=6,className="mb-3"),
+            ]
+        ),
+dbc.Row(
+            [
+
+
+            dbc.Col([
+                    html.Div([
+dbc.Row(
+            [
+ dbc.Card([
+dbc.CardBody(children='',id="rev_stats"),
+]
+)
+                ])
+                ], className='container')], md=6),
+                dbc.Col([
+                    html.Div([
+dbc.Row(
+            [
+ dbc.Card([
+dbc.CardBody(children='',id="cat_stats"),
+]
+)
+                ])
+                ], className='container')], md=6),
             ]
         ),
         dcc.Loading([html.Div(id="loading-demo")],fullscreen=True,type='cube',style={'backgroundColor': 'black'}),

@@ -50,13 +50,13 @@ class programm:
         finally:
             print(f"открыт файл './input/model.xlsx' в качесте файла тегирования")
         return tag_data
-    def parse(self,result,tag_data):
+
+    def parse(self, result, tag_data):
         self.table_colums = ['Отзыв', 'кол. совпадений', 'Теги совпадений', 'Оценка', *tag_data.columns,
-                        'Дата создания отзыва']
+                             'Дата создания отзыва']
         data = pandas.DataFrame(columns=self.table_colums)
-        m = 0
         temp = {}
-        temp_tags = []
+        temp_tags = ''
 
         all_data = set()
         tag_data.fillna('', inplace=True)
@@ -72,12 +72,11 @@ class programm:
                 for column_data in tag_data[f'{column_name}']:
                     if column_data != '':
                         if temp['Отзыв'].lower().count(column_data) > 0:
-                            m += 1
                             df.at[column_name, column_data] = 1 + df.at[column_name, column_data]
                             # print(column_data, column_name, temp['Отзыв'], "\n")
                             # temp_tags.append(column_data)
                             temp_tags = " ~ ".join([temp_tags, column_data])
-                            print("да", column_name, column_data, temp['Отзыв'])
+                            # print("да",column_name,column_data,temp['Отзыв'])
                             temp[f'{column_name}'] = 1
             temp['кол. совпадений'] = sum(list(temp.values())[2:])
             temp['Теги совпадений'] = str(temp_tags)
@@ -89,10 +88,9 @@ class programm:
             # data = data.append(temp,ignore_index=True)
             temp_tags = ''
             temp.clear()
-        #print(df)
-        print('Найдено совпадений: ' + str(m))
-        return data,m,df
-    def generate_exel(self,data,df):
+        return data, df
+
+    def generate_exel(self, data, df):
         writer = pd.ExcelWriter('./static/results.xlsx')
         data.to_excel(writer, sheet_name='table', index=False, na_rep=0)
         df.to_excel(writer, sheet_name='tags', index=False, na_rep=0)
