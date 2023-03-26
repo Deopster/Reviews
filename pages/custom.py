@@ -10,26 +10,7 @@ from dash_bootstrap_templates import load_figure_template
 list_group = dbc.ListGroup(children=filelist.uploaded_files(),
 flush=True,id='file_list',
 )
-switches = html.Div(
-    [
-        dbc.Checklist(
-            options=[
-                {"label": "Использовать лематизацию текста", "value": 1},
-            ],
-            value=[1],
-            id="switches-input",
-            switch=True,
-        ),
-    ],className="mb-2 ml-1"
-)
-select = html.Div(
-    dbc.Select(
-        ["простое тегирование", "Тегирование ключ-слово", "сканирование","перебор"],
-        "простое тегирование",
-        id="shorthand-select",
-    ),
-    className="py-2 mb-2",
-)
+
 from dash import dcc
 mp = grafpath.info()
 #print(mp)
@@ -39,18 +20,25 @@ mvt = dcc.Dropdown(
     multi=True,
     className="mb-2",
 )
+select = html.Div(
+    dbc.Select(
+        ["простое тегирование", "Тегирование ключ-слово", "сканирование","перебор"],
+        "простое тегирование",
+        id="shorthand-select",
+    ),
+    className="py-2 mb-2",
+)
+dell= html.I(className="fas fa-trash",style=dict(display='inline',color='white'))
 car = dbc.Card(
     [
-        dbc.CardBody(
-            [
-                html.H4("", className="card-title"),
-                html.P("", className="card-text"),
-            ]
-        ),
+                dbc.ListGroup(children=[dbc.ListGroupItem(dbc.Row([dbc.Col(select,md=10),dbc.Col(dbc.Button(children=dell, id='del',type="submit",target=f"0", n_clicks=0,size='md',color="info",className="mt-2",disabled=True),md=2)])),
+                                        dbc.ListGroupItem("+ Добавить", id='add-field', action=True),
+                                        dbc.ListGroupItem(dbc.Input(type='text', placeholder='Название поля для записи', ))
+                                        ], id='form-container', flush=False),
     ],
 )
 card_mod2 = html.Div([
-dbc.Col([html.Small(f"в файле найдено {len(mp.keys())} столбцов и {len(mp)} строк"),select,html.Small(f"Выберите строки над которыми необходимо провести операцию"),mvt,switches,car
+dbc.Col([html.Small(f"в файле найдено {len(mp.keys())} столбцов и {len(mp)} строк"),select,html.Small(f"Выберите строки над которыми необходимо провести операцию"),mvt,car
 ])
 ])
 

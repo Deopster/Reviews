@@ -1,11 +1,14 @@
 import os
 import time
+import jsonify
 
-from dash import html, dcc
+from dash import html, dcc, callback_context
 from dash.dependencies import Input, Output, State
 import base64
 # Connect to main app.py file
 import plotly.graph_objs as go
+from dash.exceptions import PreventUpdate
+
 from generate import programm
 from flask import Flask, send_from_directory
 # Connect to your app pages
@@ -15,11 +18,14 @@ from components import grafpath
 # Connect the navbar to the index
 from components import navbar,filelist
 import dash
+
 import pandas as pd
 import dash_bootstrap_components as dbc
-app = dash.Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'], meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0'}],suppress_callback_exceptions=True)
+server = Flask(__name__)
+app = dash.Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'], meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0'}],suppress_callback_exceptions=True, server=server)
 nav = navbar.Navbar()
 # Define the index page layout
+app.config.supress_callback_exceptions = True
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     nav,
@@ -38,11 +44,9 @@ cont404= html.Div([
     }
 )
 
-# Create the callback to handle mutlipage inputs
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    print(pathname)
     if pathname == '/page2':
         return main.layout
     elif pathname == '/page1':
@@ -54,7 +58,8 @@ def display_page(pathname):
     else: # if redirected to unknown link
         return cont404
 
-# Run the app on localhost:8050
+
+
 
 
 @app.callback(
@@ -190,9 +195,41 @@ def update_output_upl(uploaded_filenames, uploaded_file_contents):
         return [html.Li("No files yet!")]
     else:
         return [html.Li(file_download_link(filename)) for filename in files]
-
-
-
+dell= html.I(className="fas fa-trash",style=dict(display='inline',color='white'))
+@app.callback(
+    Output('form-container', 'children'),
+    [Input('del', 'n_clicks'),Input('add-field', 'n_clicks')],
+    [State('form-container', 'children')]
+)
+def add_field(n_clicks,tar, children):
+    #print(dash.callback_context.triggered)
+    if n_clicks is None:
+        raise PreventUpdate
+    else:
+        #print(dash.callback_context.triggered[0])
+        if dash.callback_context.triggered[0]['prop_id']=='add-field.n_clicks':
+            new_field = dbc.ListGroupItem(dbc.Col([
+                        dbc.Row([
+                            dbc.Col(dbc.Select(
+        ["простое тегирование", "Тегирование ключ-слово", "сканирование","перебор","график"],
+        "простое тегирование",
+        id="chose_v",
+        name=f'{str(len(children)-2)}'
+    ),className="py-2 mb-2",md=10),dbc.Col(dbc.Button(children=dell, id='del', n_clicks=0,size='md',color="info",className="mt-2"),md=2)
+                        ]),
+                        dbc.Row(children="",id=f'cont{str(len(children)-2)}')
+                ])
+            )
+            children.insert(len(children)-2,new_field)
+        elif dash.callback_context.triggered[0]['prop_id']=='del.n_clicks':
+            children.pop(len(children)-3)
+        return children
+@app.callback(
+    Output('form-container', 'children'),
+    Input('chose_v', 'name'),
+)
+def change(name):
+    pass
 
 if __name__ == '__main__':
     app.run_server(debug=True)

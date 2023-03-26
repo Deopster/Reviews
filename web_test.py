@@ -5,7 +5,6 @@ reve = pd.read_excel('./static/results.xlsx')
 data = pd.DataFrame(columns=['Отзыв','категория','подкатегория','Дата'])
 
 
-
 #print(data.keys())
 #print(head.keys())
 head_list=[]
