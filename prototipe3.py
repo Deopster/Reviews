@@ -1,25 +1,115 @@
-import dash
-import dash_bootstrap_components as dbc
-import dash_html_components as html
-from dash.dependencies import Input, Output, State
+import base64
+import os
+from urllib.parse import quote as urlquote
 
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-accordion = html.Div(
-    dbc.Accordion(
-        [
-            dbc.AccordionItem(
-                "This is the content of the first section", title=dbc.Button(children="ffdf", id='del', n_clicks=0,size='md',color="info",className="mt-2")
+from flask import Flask, send_from_directory
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output
+
+
+UPLOAD_DIRECTORY = "/test_dir"
+
+if not os.path.exists(UPLOAD_DIRECTORY):
+    os.makedirs(UPLOAD_DIRECTORY)
+
+
+# Normally, Dash creates its own Flask server internally. By creating our own,
+# we can create a route for downloading files directly:
+server = Flask(__name__)
+app = dash.Dash(server=server)
+
+
+@server.route("/download/<path:path>")
+def download(path):
+    """Serve a file from the upload directory."""
+    return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
+
+
+app.layout = html.Div(
+    [
+        html.H1("File Browser"),
+        html.H2("Upload"),
+        dcc.Upload(
+            id="upload-data",
+            children=html.Div(
+                ["Загрузить"]
             ),
-            dbc.AccordionItem(
-                "This is the content of the second section", title="Item 2"
+            style={
+                "width": "100%",
+                "height": "60px",
+                "lineHeight": "60px",
+                "borderWidth": "1px",
+                "borderStyle": "solid",
+                "borderRadius": "5px",
+                "textAlign": "center",
+                "margin": "10px",
+            },
+            multiple=True,
+        ),
+        html.H2("File List"),
+        html.Ul(id="file-list"),
+        dcc.Upload(
+            id="upl_file",
+            children=html.Div(
+                ["Загрузить"]
             ),
-            dbc.AccordionItem(
-                "This is the content of the third section", title="Item 3"
-            ),
-        ],
-        flush=True,
-    ),
+            style={
+                "borderWidth": "1px",
+                "borderStyle": "solid",
+                "borderRadius": "5px",
+                "textAlign": "center",
+                'border-color':"green",
+                "padding":"10px"
+            },
+            multiple=True,
+        )
+    ],
+    style={"max-width": "500px"},
 )
-app.layout = html.Div(accordion)
+
+
+def save_file(name, content):
+    """Decode and store a file uploaded with Plotly Dash."""
+    data = content.encode("utf8").split(b";base64,")[1]
+    with open(os.path.join(UPLOAD_DIRECTORY, name), "wb") as fp:
+        fp.write(base64.decodebytes(data))
+
+
+def uploaded_files():
+    """List the files in the upload directory."""
+    files = []
+    print(os.getcwd())
+    for filename in os.listdir(UPLOAD_DIRECTORY):
+        path = os.path.join(UPLOAD_DIRECTORY, filename)
+        if os.path.isfile(path):
+            files.append(filename)
+    return files
+
+
+def file_download_link(filename):
+    """Create a Plotly Dash 'A' element that downloads a file from the app."""
+    location = "/download/{}".format(urlquote(filename))
+    return html.A(filename, href=location)
+
+
+@app.callback(
+    Output("file-list", "children"),
+    [Input("upl_file", "filename"), Input("upl_file", "contents")],
+)
+def update_output(uploaded_filenames, uploaded_file_contents):
+    """Save uploaded files and regenerate the file list."""
+    print("ДА")
+    if uploaded_filenames is not None and uploaded_file_contents is not None:
+        for name, data in zip(uploaded_filenames, uploaded_file_contents):
+            save_file(name, data)
+
+    files = uploaded_files()
+    if len(files) == 0:
+        return [html.Li("Пока нет файлов")]
+    else:
+        return [html.Li(file_download_link(filename)) for filename in files]
+
 if __name__ == '__main__':
     app.run_server(debug=True)

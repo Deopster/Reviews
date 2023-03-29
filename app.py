@@ -9,6 +9,7 @@ import base64
 import plotly.graph_objs as go
 from dash.exceptions import PreventUpdate
 
+import components.params
 from generate import programm
 from flask import Flask, send_from_directory
 # Connect to your app pages
@@ -25,7 +26,7 @@ server = Flask(__name__)
 app = dash.Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'], meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0'}],suppress_callback_exceptions=True, server=server)
 nav = navbar.Navbar()
 # Define the index page layout
-app.config.supress_callback_exceptions = True
+app.config.suppress_callback_exceptions = True
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     nav,
@@ -72,7 +73,6 @@ def display_page(pathname):
     [State("toggle-modal-1", "is_open")],
 )
 def toggle_modal_1(n0, n1, n2, is_open):
-    mv = filelist.uploaded_files()
     if n0 or n1 or n2:
         return not is_open
     return is_open
@@ -213,23 +213,113 @@ def add_field(n_clicks,tar, children):
                             dbc.Col(dbc.Select(
         ["простое тегирование", "Тегирование ключ-слово", "сканирование","перебор","график"],
         "простое тегирование",
-        id="chose_v",
-        name=f'{str(len(children)-2)}'
+        id=f"chose_v{str(len(children)-2)}",
     ),className="py-2 mb-2",md=10),dbc.Col(dbc.Button(children=dell, id='del', n_clicks=0,size='md',color="info",className="mt-2"),md=2)
                         ]),
                         dbc.Row(children="",id=f'cont{str(len(children)-2)}')
-                ])
+                ],id=f'panal{str(len(children)-2)}')
             )
             children.insert(len(children)-2,new_field)
         elif dash.callback_context.triggered[0]['prop_id']=='del.n_clicks':
             children.pop(len(children)-3)
         return children
-@app.callback(
-    Output('form-container', 'children'),
-    Input('chose_v', 'name'),
-)
-def change(name):
-    pass
+for i in range(10):
+    @app.callback(
+        Output(f'cont{str(i)}', 'children'),
+        Input(f'chose_v{str(i)}', 'value'),
+    )
+    def change(name):
+        #print(name)
+        if name=='простое тегирование':
+            return components.params.simple
+        elif name=='Тегирование ключ-слово':
+            return components.params.tag_key
+        elif name=="сканирование":
+            return components.params.scan
 
+
+def save_file(name, content):
+    """Decode and store a file uploaded with Plotly Dash."""
+    data = content.encode("utf8").split(b";base64,")[1]
+    with open(os.path.join(UPLOAD_DIRECTORY, name), "wb") as fp:
+        fp.write(base64.decodebytes(data))
+
+
+def uploaded_files():
+    """List the files in the upload directory."""
+    files = []
+    #print(os.getcwd())
+    for filename in os.listdir(UPLOAD_DIRECTORY):
+        path = os.path.join(UPLOAD_DIRECTORY, filename)
+        if os.path.isfile(path):
+            files.append(filename)
+    return files
+
+
+def file_download_link(filename):
+    """Create a Plotly Dash 'A' element that downloads a file from the app."""
+    location = "/download/{}".format(urlquote(filename))
+    return html.A(filename, href=location)
+
+
+
+@app.callback(
+    Output("file-list1", "children"),
+    [Input("upl_file", "filename"), Input("upl_file", "contents")],
+)
+def update_output(uploaded_filenames, uploaded_file_contents):
+    """Save uploaded files and regenerate the file list."""
+    #print("ДА")
+    if uploaded_filenames is not None and uploaded_file_contents is not None:
+        for name, data in zip(uploaded_filenames, uploaded_file_contents):
+            save_file(name, data)
+
+    files = uploaded_files()
+    if len(files) == 0:
+        return [html.Li("Пока нет файлов")]
+    else:
+        return [dbc.ListGroupItem( obj, id="button-item", n_clicks=0, action=True, active=True) for obj in files]
+
+for i in range(5):
+    @app.callback(
+        Output(f"item_chose{str(i)}","active"),
+        [Input(f"item_chose{str(i)}", "n_clicks"),Input(f"item_chose{str(i)}", "children"),Input(f"item_chose{str(i)}", "active")]
+    )
+    def say(m,a,s):
+        #print(m,a,s)
+        if m == 0:
+            return dash.no_update
+        else:
+            if s is True:
+                return False
+            else:
+                filelist.save_file(a)
+                return True
+@app.callback(
+    Output("open-toggle-modal-2", "disabled"),
+    [Input(f"item_chose{str(i)}", "n_clicks")for i in range(len(filelist.files_()))]
+)
+def say(*args):
+    if sum(args) == 0:
+        return dash.no_update
+    else:
+        return False
+
+@app.callback(Output('file_name_card', 'children'),
+              Output("file_names_drop","options"),
+              [Input('open-toggle-modal-2', 'n_clicks')])
+def update_random_number(n):
+    print("fdfdf")
+    return f"в файле {filelist.getfile_name()} найдено {len(filelist.getfile().keys())} столбцов и {len(filelist.getfile())} строк",filelist.getfile().keys()
+@app.callback(
+    Output("my-store", "data"),
+    [Input("start", 'n_clicks')],[State('form-container', 'children')]
+)
+def save_field_values(a,m):
+    if a ==0:
+        return dash.no_update
+        print("Сохранён")
+    print(m)
+    return list(m)
 if __name__ == '__main__':
     app.run_server(debug=True)

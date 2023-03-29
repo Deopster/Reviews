@@ -1,16 +1,35 @@
 UPLOAD_DIRECTORY = "/tretafdtvd"
+import pandas as pd
 import pandas
 import os
 import dash_bootstrap_components as dbc
+file="results.xlsx"
+file_read=pd.read_excel(f'C:/tretafdtvd/{file}', sheet_name='table')
+def save_file(ova):
+    global file,file_read
+    file = ova
+    file_read= pd.read_excel(f'C:/tretafdtvd/{file}', sheet_name='table')
+    print(file)
+def getfile():
+    global file_read
+    return file_read
+def getfile_name():
+    global file
+    return file
 def uploaded_files():
     files = []
     for filename in os.listdir(UPLOAD_DIRECTORY):
         path = os.path.join(UPLOAD_DIRECTORY, filename)
         if os.path.isfile(path):
             files.append(filename)
-    return  [dbc.ListGroupItem( obj, id="button-item", n_clicks=0, action=True, active=True) for obj in files]
-
-
+    return  [dbc.ListGroupItem( obj, id=f"item_chose{index}", n_clicks=0, action=True, active=False) for index,obj in enumerate(files)]
+def files_():
+    files = []
+    for filename in os.listdir(UPLOAD_DIRECTORY):
+        path = os.path.join(UPLOAD_DIRECTORY, filename)
+        if os.path.isfile(path):
+            files.append(filename)
+    return files
 def multitags(tag_data,result):
         table_colums = ['Отзыв', 'кол. совпадений', 'Теги совпадений', 'Оценка', *tag_data.columns,
                         'Дата создания отзыва']
