@@ -45,4 +45,5 @@ dbc.Row(
     ],
     fluid=True,
     className="dbc",
+    style={'backgroundImage':'url("../back.gif")'}
 )

@@ -2,8 +2,6 @@ from dash import Dash, dcc, html, dash_table, Input, Output, callback, State
 import dash_bootstrap_components as dbc
 from components import filelist
 
-import pymystem3
-
 import plotly.express as px
 from dash_bootstrap_templates import load_figure_template
 list_group = dbc.ListGroup(children=filelist.uploaded_files(),
@@ -19,20 +17,17 @@ mvt = dcc.Dropdown(
     id="file_names_drop",
     className="mb-2",
 )
-select = html.Div(
-    dbc.Select(
+select = dbc.Select(
         ["простое тегирование", "Тегирование ключ-слово", "сканирование","перебор"],
         "простое тегирование",
-        id=f"chose_v0",
-    ),
-    className="py-2 mb-2",
-)
+        id=f"chose_v0", className="py-2 mb-2"
+    )
 dell= html.I(className="fas fa-trash",style=dict(display='inline',color='white'))
 car = dbc.Card(
     [
-                dbc.ListGroup(children=[dbc.ListGroupItem([dbc.Row([dbc.Col(select,md=10),dbc.Col(dbc.Button(children=dell, id='del',type="submit",target=f"0", n_clicks=0,size='md',color="info",className="mt-2",disabled=True),md=2)]),
+                dbc.ListGroup(children=[dbc.ListGroupItem(dbc.Col([dbc.Row([dbc.Col(select,md=10),dbc.Col(dbc.Button(children=dell, id='del',type="submit",target=f"0", n_clicks=0,size='md',color="info",className="mb-2",disabled=True),md=2)]),
                                                            dbc.Row(children="", id=f'cont0')
-                                                          ]),
+                                                          ])),
                                         dbc.ListGroupItem("+ Добавить", id='add-field', action=True),
                                         dbc.ListGroupItem(dbc.Input(type='text', placeholder='Название поля для записи', ))
                                         ], id='form-container', flush=False),

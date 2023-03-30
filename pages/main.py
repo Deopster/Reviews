@@ -1,7 +1,6 @@
 from dash import Dash, callback
 from generate import programm
 import os
-import matplotlib.pyplot as plt
 import numpy as np
 import plotly
 import plotly.graph_objs as go

@@ -320,6 +320,22 @@ def save_field_values(a,m):
         return dash.no_update
         print("Сохранён")
     print(m)
+    obr = []
+    for i in range(len(m)-2):
+        tempval=[]
+        print('новое')
+        zna= m[i]['props']['children']['props']['children'][0]['props']['children'][0]['props']['children']['props']['value']
+        if zna == 'Тегирование ключ-слово':
+            for i in m[i]['props']['children']['props']['children'][1]['props']['children']['props']['children']['props']['children']:
+                #print(i)
+                if i['type'] == 'Label':
+                    pass
+                else:
+                    print(i['props']['value'])
+                    tempval.append(i['props']['value'])
+        obr.append({zna:tempval})
+        print(obr)
+                #print("\n/\n")
     return list(m)
 if __name__ == '__main__':
     app.run_server(debug=True)
