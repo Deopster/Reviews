@@ -306,11 +306,11 @@ def say(*args):
         return False
 
 @app.callback(Output('file_name_card', 'children'),
-              Output("file_names_drop","options"),
+              #Output("file_names_drop","options"),
               [Input('open-toggle-modal-2', 'n_clicks')])
 def update_random_number(n):
     print("fdfdf")
-    return f"в файле {filelist.getfile_name()} найдено {len(filelist.getfile().keys())} столбцов и {len(filelist.getfile())} строк",filelist.getfile().keys()
+    return f"в файле {filelist.getfile_name()} найдено {len(filelist.getfile().keys())} столбцов и {len(filelist.getfile())} строк" #,filelist.getfile().keys()
 @app.callback(
     Output("my-store", "data"),
     [Input("start", 'n_clicks')],[State('form-container', 'children')]
@@ -331,8 +331,11 @@ def save_field_values(a,m):
                 if i['type'] == 'Label':
                     pass
                 else:
-                    print(i['props']['value'])
-                    tempval.append(i['props']['value'])
+                    try:
+                        #print(i['props']['value'])
+                        tempval.append(i['props']['value'])
+                    except KeyError:
+                        tempval.append("пусто")
         obr.append({zna:tempval})
         print(obr)
                 #print("\n/\n")

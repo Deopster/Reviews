@@ -28,13 +28,13 @@ car = dbc.Card(
                 dbc.ListGroup(children=[dbc.ListGroupItem(dbc.Col([dbc.Row([dbc.Col(select,md=10),dbc.Col(dbc.Button(children=dell, id='del',type="submit",target=f"0", n_clicks=0,size='md',color="info",className="mb-2",disabled=True),md=2)]),
                                                            dbc.Row(children="", id=f'cont0')
                                                           ])),
-                                        dbc.ListGroupItem("+ Добавить", id='add-field', action=True),
-                                        dbc.ListGroupItem(dbc.Input(type='text', placeholder='Название поля для записи', ))
+                                        dbc.ListGroupItem("Добавить", id='add-field', action=True,style={'textAlign': 'center','backgroundColor':''}),
+                                        dbc.ListGroupItem()
                                         ], id='form-container', flush=False),
     ],
 )
 card_mod2 = html.Div([
-dbc.Col([html.Small(f"в файле {filelist.getfile_name()} найдено {len(filelist.getfile().keys())} столбцов и {len(filelist.getfile())} строк",id="file_name_card"),html.Br(),html.Small(f"Выберите строки над которыми необходимо провести операцию"),mvt,car,dcc.Store(id='my-store')
+dbc.Col([html.Small(f"в файле {filelist.getfile_name()} найдено {len(filelist.getfile().keys())} столбцов и {len(filelist.getfile())} строк",id="file_name_card" ,className="mb-2"),car,dcc.Store(id='my-store') #,html.Small(f"Выберите строки над которыми необходимо провести операцию"),mvt
 ])
 ])
 
@@ -42,7 +42,7 @@ dbc.Col([html.Small(f"в файле {filelist.getfile_name()} найдено {le
 
 cont=html.Div([ dbc.Card(
             dbc.CardBody(list_group,id='body_files'),
-            className="mb-3",style={'min-height':'17em'}
+            className="mb-2",style={'minHeight':'17em'}
         ),
 ])
 modal_2 = dbc.Modal(
@@ -78,13 +78,13 @@ upl =  dcc.Upload(
                 "borderStyle": "solid",
                 "borderRadius": "5px",
                 "textAlign": "center",
-                'border-color':"green",
+                'borderColor':"green",
                 "padding":"10px"
             },
             multiple=True,
         )
 modal =html.Div([
-    dbc.Button("+", outline=True, color="success", className="me-1", n_clicks=0,id="open-lg-new",size='lg',style={'--bs-btn-padding-x': '9.75rem','--bs-btn-padding-y': '9rem','border-style':'dashed','font-size':'2em'}),
+    dbc.Button("+", outline=True, color="success", className="me-1", n_clicks=0,id="open-lg-new",size='lg',style={'--bs-btn-padding-x': '9.75rem','--bs-btn-padding-y': '9rem','borderStyle':'dashed','fontSize':'2em'}),
     dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("Выберите файл")),
