@@ -1,6 +1,5 @@
 import os
 import time
-import jsonify
 
 from dash import html, dcc, callback_context
 from dash.dependencies import Input, Output, State
@@ -214,14 +213,14 @@ def add_field(n_clicks,tar, children):
         ["простое тегирование", "Тегирование ключ-слово", "сканирование","перебор","график"],
         "простое тегирование",
         id=f"chose_v{str(len(children)-2)}",
-    ),className="py-2 mb-2",md=10),dbc.Col(dbc.Button(children=dell, id='del', n_clicks=0,size='md',color="info",className="mt-2"),md=2)
+    ),className="mb-2",md=10,style={'paddingRight':'0','paddingLeft':'0'}),dbc.Col(dbc.Button(children=dell, id='del', n_clicks=0,size='md',color="info",className="mb-2"),md=2)
                         ]),
                         dbc.Row(children="",id=f'cont{str(len(children)-2)}')
-                ],id=f'panal{str(len(children)-2)}')
+                ],id=f'panal{str(len(children)-1)}')
             )
-            children.insert(len(children)-2,new_field)
+            children.insert(len(children)-1,new_field)
         elif dash.callback_context.triggered[0]['prop_id']=='del.n_clicks':
-            children.pop(len(children)-3)
+            children.pop(len(children)-2)
         return children
 for i in range(10):
     @app.callback(
@@ -293,7 +292,6 @@ for i in range(5):
             if s is True:
                 return False
             else:
-                filelist.save_file(a)
                 return True
 @app.callback(
     Output("open-toggle-modal-2", "disabled"),
@@ -310,8 +308,10 @@ def say(*args):
               [Input('open-toggle-modal-2', 'n_clicks')])
 def update_random_number(n):
     print("fdfdf")
+    filelist.read_file()
     return f"в файле {filelist.getfile_name()} найдено {len(filelist.getfile().keys())} столбцов и {len(filelist.getfile())} строк" #,filelist.getfile().keys()
 @app.callback(
+    Output("alert-warn", "is_open"),
     Output("my-store", "data"),
     [Input("start", 'n_clicks')],[State('form-container', 'children')]
 )
@@ -321,7 +321,7 @@ def save_field_values(a,m):
         print("Сохранён")
     print(m)
     obr = []
-    for i in range(len(m)-2):
+    for i in range(len(m)-1):
         tempval=[]
         print('новое')
         zna= m[i]['props']['children']['props']['children'][0]['props']['children'][0]['props']['children']['props']['value']
@@ -335,10 +335,12 @@ def save_field_values(a,m):
                         #print(i['props']['value'])
                         tempval.append(i['props']['value'])
                     except KeyError:
-                        tempval.append("пусто")
+                        #tempval.append("пусто")
+                        return True, []
+
         obr.append({zna:tempval})
         print(obr)
                 #print("\n/\n")
-    return list(m)
+    return False,list(m)
 if __name__ == '__main__':
     app.run_server(debug=True)

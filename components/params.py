@@ -51,7 +51,7 @@ tag_key=dbc.Card(
             ),
         dbc.Label("Исходный столбец парсинга"),
         mvt,
-        switches,
+        #switches,
         switches1,
         dbc.Label("Точность сравнения"),
         dcc.Slider(0, 1),

@@ -1,15 +1,19 @@
-UPLOAD_DIRECTORY = "/tretafdtvd"
+UPLOAD_DIRECTORY = "./static/"
 import pandas as pd
 import pandas
 import os
 import dash_bootstrap_components as dbc
+print(os.getcwd())
 file="results.xlsx"
-file_read=pd.read_excel(f'C:/tretafdtvd/{file}', sheet_name='table')
+file_read=pd.read_excel(f'./static/{file}', sheet_name='table')
 def save_file(ova):
     global file,file_read
     file = ova
-    file_read= pd.read_excel(f'C:/tretafdtvd/{file}', sheet_name='table')
+    file_read= pd.read_excel(f'./static/{file}', sheet_name='table')
     print(file)
+def read_file():
+    global file,file_read
+    file_read= pd.read_excel(f'./static/{file}', sheet_name='table')
 def getfile():
     global file_read
     return file_read
