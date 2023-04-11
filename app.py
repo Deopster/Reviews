@@ -323,7 +323,7 @@ def save_field_values(a,m):
     obr = []
     for i in range(len(m)-1):
         tempval=[]
-        print('новое')
+        #print('новое')
         zna= m[i]['props']['children']['props']['children'][0]['props']['children'][0]['props']['children']['props']['value']
         if zna == 'Тегирование ключ-слово':
             for i in m[i]['props']['children']['props']['children'][1]['props']['children']['props']['children']['props']['children']:
