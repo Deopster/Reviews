@@ -28,7 +28,7 @@ car = html.Div(
                 dbc.ListGroup(children=[dbc.ListGroupItem(dbc.Col([dbc.Row([dbc.Col(select,md=10,style={'paddingRight':'0','paddingLeft':'0'}),dbc.Col(dbc.Button(children=dell, id='del',type="submit",target=f"0", n_clicks=0,size='md',color="info",className="mb-2",disabled=True),md=2)]),
                                                            dbc.Row(children="", id=f'cont0')
                                                           ])),
-                                        dbc.ListGroupItem("Добавить", id='add-field', action=True,style={'textAlign': 'center','backgroundColor':''}),
+                                        dbc.ListGroupItem("Добавить", id='add-field', action=True,style={'textAlign': 'center'}),
                                         #dbc.ListGroupItem()
                                         ], id='form-container',flush=True),
     ],style={"border":"none"}

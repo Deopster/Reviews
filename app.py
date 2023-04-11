@@ -212,7 +212,7 @@ def add_field(n_clicks,tar, children):
                             dbc.Col(dbc.Select(
         ["простое тегирование", "Тегирование ключ-слово", "сканирование","перебор","график"],
         "простое тегирование",
-        id=f"chose_v{str(len(children)-2)}",
+        id=f"chose_v{str(len(children)-2)}"
     ),className="mb-2",md=10,style={'paddingRight':'0','paddingLeft':'0'}),dbc.Col(dbc.Button(children=dell, id='del', n_clicks=0,size='md',color="info",className="mb-2"),md=2)
                         ]),
                         dbc.Row(children="",id=f'cont{str(len(children)-2)}')

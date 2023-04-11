@@ -2,7 +2,6 @@ import dash
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 icon = html.I(className='fas fa-arrow-alt-circle-right')
 but=dbc.Button(
@@ -24,7 +23,7 @@ html.Div(children=[html.Div(children=html.H4("fdfdfdf"), style={'flex': 1,'max-w
         'flex-wrap': 'wrap',
         'justify-content': 'flex-start',
         'align-items': 'center',
-    }),
+    }),mva
 ])
 
 @app.callback(

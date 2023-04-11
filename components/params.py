@@ -54,7 +54,7 @@ tag_key=dbc.Card(
         #switches,
         switches1,
         dbc.Label("Точность сравнения"),
-        dcc.Slider(0, 1),
+        dcc.Slider(0, 1,0.1,value=0.8),
         dbc.Label("Столбец exel таблицы в который будут записываться результаты"),
         dbc.Input(placeholder="Укажите название поля записи",type="text"),
     ],className="mb-2 mt-2")
@@ -63,7 +63,7 @@ tag_key=dbc.Card(
 
 
 sel=dbc.Select(
-        ["=", "<", ">","<=",">="],
+        ["=", "<", ">","<=",">=","содержит"],
         "=",
         id="shorthand-select",
 
@@ -75,6 +75,7 @@ scan=dbc.Card(
             dbc.Col(sel,md=3),
             dbc.Col(dbc.Input(placeholder="Значение",type="text"),md=4),
         ]),
+        dbc.Button("новое условие",style={"border":"1px solid #ced4da",'textAlign':'center'}),
         dbc.Label("Столбец exel таблицы в который будут записываться результаты"),
         dbc.Input(placeholder="Укажите название поля записи",type="text"),
     ],className="mb-2 mt-2")
