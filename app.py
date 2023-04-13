@@ -293,6 +293,20 @@ for i in range(5):
                 return False
             else:
                 return True
+
+@app.callback(
+    Output("scan_col","children"),
+    [Input("add_scan","n_clicks")],
+    [State('scan_col', 'children')]
+)
+def some(n_clicks,s):
+    print(n_clicks,s)
+    if n_clicks is None:
+        raise PreventUpdate
+    else:
+        print(s)
+        return s
+
 @app.callback(
     Output("open-toggle-modal-2", "disabled"),
     [Input(f"item_chose{str(i)}", "n_clicks")for i in range(len(filelist.files_()))]
