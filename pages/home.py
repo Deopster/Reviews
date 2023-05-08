@@ -54,6 +54,15 @@ list_data = dbc.Row(
         dbc.Col(html.Div(number_input)),
     ],className="mb-2"
 )
+old=dbc.Checklist(
+            options=[
+                {"label": "старое приложение / новое приложение", "value": 1},
+            ],
+            value=[1],
+            id="old-new",
+            switch=True,
+            className="mb-2 ml-1"
+        )
 slider = html.Div(
     [
         dbc.Label("Применить фильтр оценок отзывов"),
@@ -120,7 +129,7 @@ chose = dbc.Card(
     ]))
                 )
 controls = dbc.Card(
-    [list_data, ells, slider],
+    [list_data, ells, old,slider],
     body=True,className=["mb-3"]
 )
 

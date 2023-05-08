@@ -130,7 +130,30 @@ def graf_home_4(np):
     fig = px.line(rezalts)
     fig.update_layout(xaxis_title="Даты", yaxis_title="Колличество обращений по категориям",template="seaborn",margin=dict(l=0, r=0, t=0, b=0))
     return dcc.Graph(figure=fig, style={'height': '22rem'})
-
+def graf_cust(np):
+    lit = pd.read_excel('./fin.xlsx')
+    head_list = []
+    temp_list = []
+    rez = {}
+    #print(np)
+    rezalts = pd.DataFrame(columns=rez[np], index=dates_list)
+    lit.fillna("", inplace=True)
+    rezalts.fillna(0, inplace=True)
+    for date in lit.iterrows():
+        cur_date = str(date[1]['Дата'])
+        cur_date = cur_date.replace('-', " ").split()[0:2]
+        real_date = cur_date[0] + '-' + cur_date[1]
+        for n in rez[np]:
+            #print(str(date[1]['подкатегория']).split(','))
+            #print(real_date, n, date[1]['подкатегория'])
+            if str(date[1]['подкатегория']).lower().count(n.lower()) > 0:
+                #print("Да",n)
+                rezalts.at[real_date, n] = 1 + rezalts.at[real_date, n]
+        #print("-----\n")
+    #print(rezalts)
+    fig = px.line(rezalts)
+    fig.update_layout(xaxis_title="Даты", yaxis_title="Колличество обращений по категориям",template="seaborn",margin=dict(l=0, r=0, t=0, b=0))
+    return dcc.Graph(figure=fig, style={'height': '22rem'})
 def graf_main_1():
     ma = [html.Div([
         dbc.Row([html.H4(category)]),

@@ -9,6 +9,8 @@ import plotly.graph_objs as go
 from dash.exceptions import PreventUpdate
 
 import components.params
+import scan
+import web_test
 from generate import programm
 from flask import Flask, send_from_directory
 # Connect to your app pages
@@ -19,7 +21,6 @@ from components import grafpath
 from components import navbar,filelist
 import dash
 
-import pandas as pd
 import dash_bootstrap_components as dbc
 server = Flask(__name__)
 app = dash.Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP,dbc.icons.FONT_AWESOME, dbc.icons.BOOTSTRAP,'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'], meta_tags=[{'name': 'viewport', 'content': 'width=device-width, initial-scale=1.0'}],suppress_callback_exceptions=True, server=server)
@@ -93,15 +94,22 @@ def toggle_modal_2(n2, n1, is_open):
 
 
 
-@app.callback( Output("loading-demo", "children"),Output("my-output", "children"), Input('button', 'n_clicks'),[State('my-output', 'children')])
-def run_script(n_clicks,text):
+@app.callback( Output("loading-demo", "children"),Output("my-output", "children"), Input('button', 'n_clicks'),[State('my-output', 'children'),State("old-new", 'value')])
+def run_script(n_clicks,text,state):
     if n_clicks > 0:
-        init = programm()
+        print("Приложение",state)
+        if len(state)==1:
+            application = 'com.bank.domrf.v2'
+        else:
+            application = 'com.bssys.roscapretail'
+
+        init = programm(appl=application)
         result = init.get_parse_data()
         init.create()
         tag_data = init.open()
         generated_data ,df = init.parse(result, tag_data)
         init.generate_exel(generated_data,df)
+        web_test.test("df",'Отзыв',0.8,'./static/results.xlsx',"rety.xlsx")
         grafpath.getdata()
     return ('',f"Данные от  {time.ctime(os.path.getmtime('./static/results.xlsx'))}")
 def toggle_modal(n1, n2, is_open):
@@ -210,8 +218,8 @@ def add_field(n_clicks,tar, children):
             new_field = dbc.ListGroupItem(dbc.Col([
                         dbc.Row([
                             dbc.Col(dbc.Select(
-        ["простое тегирование", "Тегирование ключ-слово", "сканирование","перебор","график"],
-        "простое тегирование",
+        ["Простое тегирование - поиск совпадений", "Тегирование - разделение по категориям", "Сканирование - сравнение построчно","перебор","график"],
+        "Простое тегирование - поиск совпадений",
         id=f"chose_v{str(len(children)-2)}"
     ),className="mb-2",md=10,style={'paddingRight':'0','paddingLeft':'0'}),dbc.Col(dbc.Button(children=dell, id='del', n_clicks=0,size='md',color="info",className="mb-2"),md=2)
                         ]),
@@ -229,11 +237,11 @@ for i in range(10):
     )
     def change(name):
         #print(name)
-        if name=='простое тегирование':
+        if name=='Простое тегирование - поиск совпадений':
             return components.params.simple
-        elif name=='Тегирование ключ-слово':
+        elif name=='Тегирование - разделение по категориям':
             return components.params.tag_key
-        elif name=="сканирование":
+        elif name=="Сканирование - сравнение построчно":
             return components.params.scan
 
 
@@ -294,18 +302,26 @@ for i in range(5):
             else:
                 return True
 
-@app.callback(
-    Output("scan_col","children"),
-    [Input("add_scan","n_clicks")],
-    [State('scan_col', 'children')]
-)
-def some(n_clicks,s):
-    print(n_clicks,s)
-    if n_clicks is None:
-        raise PreventUpdate
-    else:
-        print(s)
-        return s
+# @app.callback(
+#     Output("scan_col","children"),
+#     [Input("add_scan","n_clicks")],
+#     [State('scan_col', 'children')]
+# )
+#
+# def some(n_clicks,s):
+#     #print(n_clicks,s)
+#     if n_clicks is None:
+#         raise PreventUpdate
+#     else:
+#         s.append(
+#             dbc.Row([
+#                 dbc.Col(mvt, md=5),
+#                 dbc.Col(sel, md=3),
+#                 dbc.Col(dbc.Input(placeholder="Значение", type="text"), md=4),
+#             ]),
+#         )
+#         print(s)
+#         return s
 
 @app.callback(
     Output("open-toggle-modal-2", "disabled"),
@@ -324,37 +340,87 @@ def update_random_number(n):
     print("fdfdf")
     filelist.read_file()
     return f"в файле {filelist.getfile_name()} найдено {len(filelist.getfile().keys())} столбцов и {len(filelist.getfile())} строк" #,filelist.getfile().keys()
+chose1 = dbc.Card(
+    dbc.CardBody(html.Div([
+        dcc.Dropdown(options= grafpath.Get_keys(),
+        value=grafpath.Get_keys()[0],
+        id="cat_chose_1",
+        className="dash-bootstrap",
+        clearable=False
+                )
+    ]))
+                )
+download = html.I(className="fas fa-cloud-download",style={'textAlign': 'center','verticalAlign': 'bottom','display':'inline'})
+body1=dbc.Row(dbc.Button(children=download,href="/static/fin.xlsx",download="my_data.xlsx",external_link=True, color="success",size="lg", className="but"))
+# body1 = dbc.Row([
+#     dbc.Col([dbc.Row(chose1),dbc.Row(children=grafpath.graf_cust("Банк"),id="new_field")]),
+#     dbc.Col()
+# ])
+
 @app.callback(
     Output("alert-warn", "is_open"),
     Output("my-store", "data"),
+    Output("the_view","children"),
     [Input("start", 'n_clicks')],[State('form-container', 'children')]
 )
 def save_field_values(a,m):
     if a ==0:
         return dash.no_update
         print("Сохранён")
-    print(m)
-    obr = []
+    #print(m)
+    obr = {}
     for i in range(len(m)-1):
         tempval=[]
         #print('новое')
         zna= m[i]['props']['children']['props']['children'][0]['props']['children'][0]['props']['children']['props']['value']
-        if zna == 'Тегирование ключ-слово':
-            for i in m[i]['props']['children']['props']['children'][1]['props']['children']['props']['children']['props']['children']:
+        if zna == 'Тегирование - разделение по категориям':
+            for n in m[i]['props']['children']['props']['children'][1]['props']['children']['props']['children']['props']['children']:
                 #print(i)
-                if i['type'] == 'Label':
+                if n['type'] == 'Label':
                     pass
                 else:
                     try:
-                        #print(i['props']['value'])
-                        tempval.append(i['props']['value'])
+                        #print(n['props']['value'])
+                        tempval.append(n['props']['value'])
                     except KeyError:
                         #tempval.append("пусто")
-                        return True, []
+                        return True, [],[]
+        if zna == "Сканирование - сравнение построчно":
+            for n in  m[i]['props']['children']['props']['children'][1]['props']['children']['props']['children']['props']['children']:
+                #print("\n",n,"\n")
+                if type(n['props']['children']) is list:
+                    temp=[]
+                    for inlist in n['props']['children']:
+                        try:
+                            # print(n['props']['value'])
+                            temp.append(inlist['props']['children']['props']['value'])
+                        except KeyError:
+                            # tempval.append("пусто")
+                            return True, [],[]
+                        #print(inlist['props']['children']['props'])
+                    tempval.append(temp)
+        obr[zna]=tempval
+    if 'Сканирование - сравнение построчно' in obr.keys():
+        print("Вхождение сканирование")
+        scan.scan(obr['Сканирование - сравнение построчно'])
+    if 'Тегирование - разделение по категориям' in obr.keys():
+        print("Вхождение тегирование")
+        print(obr['Тегирование - разделение по категориям'])
+        if len(obr.keys())>1:
+            filename_send="./temp.xlsx"
+        else:
+            filename_send=f"./static/{filelist.getfile_name()}"
+        web_test.test(obr['Тегирование - разделение по категориям'][4],obr['Тегирование - разделение по категориям'][1],obr['Тегирование - разделение по категориям'][3],filename_send,"./static/fin.xlsx")
+        #print("\n",ell)
+        #print("\n/\n")
 
-        obr.append({zna:tempval})
-        print(obr)
-                #print("\n/\n")
-    return False,list(m)
+    return False,list(m),body1
+
+@app.callback(
+Output("new_field","children"),
+Input('cat_chose_1', 'value'),
+)
+def upd(nd):
+    return grafpath.graf_cust(nd)
 if __name__ == '__main__':
     app.run_server(debug=True)

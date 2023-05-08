@@ -2,8 +2,6 @@ from dash import Dash, dcc, html, dash_table, Input, Output, callback, State
 import dash_bootstrap_components as dbc
 from components import filelist
 
-import plotly.express as px
-from dash_bootstrap_templates import load_figure_template
 list_group = dbc.ListGroup(children=filelist.uploaded_files(),
 flush=True,id='file_list1',
 )
@@ -18,8 +16,8 @@ mvt = dcc.Dropdown(
     className="mb-2",
 )
 select = dbc.Select(
-        ["простое тегирование", "Тегирование ключ-слово", "сканирование","перебор"],
-        "простое тегирование",
+        ["Простое тегирование - поиск совпадений", "Тегирование - разделение по категориям", "Сканирование - сравнение построчно","Перебор"],
+        "Простое тегирование - поиск совпадений",
         id=f"chose_v0", className="mb-2"
     )
 dell= html.I(className="fas fa-trash",style=dict(display='inline',color='white'))
@@ -94,7 +92,7 @@ upl =  dcc.Upload(
             },
             multiple=True,
         )
-modal =html.Div([
+modal =html.Div([dbc.Card(id="the_view",children=""),
     dbc.Button("+", outline=True, color="success", className="me-1", n_clicks=0,id="open-lg-new",size='lg',style={'--bs-btn-padding-x': '9.75rem','--bs-btn-padding-y': '9rem','borderStyle':'dashed','fontSize':'2em'}),
     dbc.Modal(
             [

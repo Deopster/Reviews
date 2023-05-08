@@ -4,7 +4,7 @@ import pandas
 import os
 import string
 class programm:
-    def __init__(self,lang = 'ru',country = 'us',rev_number = None,freeze_colums = 2,freeze_rows = 1,autofilter = False,score=None,sort = 'NEWEST',columns=['Отзыв','кол. совпадений','Теги совпадений', 'Оценка','колонки тегов']):
+    def __init__(self,lang = 'ru',country = 'us',rev_number = None,freeze_colums = 2,freeze_rows = 1,autofilter = False,score=None,sort = 'NEWEST',appl=None,columns=['Отзыв','кол. совпадений','Теги совпадений', 'Оценка','колонки тегов']):
         self.lang = lang
         self.country = country
         self.rev_number = rev_number
@@ -13,51 +13,34 @@ class programm:
         self.autofilter =autofilter
         self.score = score
         self.sort = sort
+        self.application = appl
     def get_parse_data(self):
         params = {"NEWEST": Sort.NEWEST, "MOST_RELEVANT": Sort.MOST_RELEVANT}
         if self.rev_number is None:
             result = reviews_all(
-                'com.bssys.roscapretail',
+                self.application,
                 sleep_milliseconds=0,
                 lang=self.lang,
                 country=self.country,
-                sort=params[self.sort],
+                sort=Sort.NEWEST,
                 filter_score_with=self.score
             )
         else:
             result = reviews(
-                'com.bssys.roscapretail',
-                lang=self.lang,  # defaults to 'en'
-                country=self.country,  # defaults to 'us'
-                sort=params[self.sort],  # defaults to Sort.NEWEST
-                count=self.rev_number,  # defaults to 100
-                filter_score_with=self.score  # defaults to None(means all score)
+                self.application,
+                lang=self.lang,
+                country=self.country,
+                sort=params[self.sort],
+                count=self.rev_number,
+                filter_score_with=self.score
             )
         return result
-    def create(self):
-        if not os.path.isdir("./static"):
-            os.mkdir("static")
-            return "создан путь static"
-    def open(self):
-        try:
-            tag_data = pandas.read_excel('./input/model.xlsx')
-        except IndexError:
-            print("Закиньте в папку input файл с тегами")
-            raise
-        except Exception:
-            print("Неизвестная ошибка")
-            raise
-        finally:
-            print(f"открыт файл './input/model.xlsx' в качесте файла тегирования")
-        return tag_data
-
     def parse(self, result, tag_data):
         self.table_colums = ['Отзыв', 'кол. совпадений', 'Теги совпадений', 'Оценка', *tag_data.columns,
                              'Дата создания отзыва']
         data = pandas.DataFrame(columns=self.table_colums)
         temp = {}
         temp_tags = ''
-
         all_data = set()
         tag_data.fillna('', inplace=True)
         for i in tag_data.values.tolist():
@@ -89,7 +72,22 @@ class programm:
             temp_tags = ''
             temp.clear()
         return data, df
-
+    def create(self):
+        if not os.path.isdir("./static"):
+            os.mkdir("static")
+            return "создан путь static"
+    def open(self):
+        try:
+            tag_data = pandas.read_excel('./input/model.xlsx')
+        except IndexError:
+            print("Закиньте в папку input файл с тегами")
+            raise
+        except Exception:
+            print("Неизвестная ошибка")
+            raise
+        finally:
+            print(f"открыт файл './input/model.xlsx' в качесте файла тегирования")
+        return tag_data
     def generate_exel(self, data, df):
         writer = pd.ExcelWriter('./static/results.xlsx')
         data.to_excel(writer, sheet_name='table', index=False, na_rep=0)
@@ -118,5 +116,12 @@ class programm:
                                                                                                    'criteria': f'=${string.ascii_uppercase[self.table_colums.index("Оценка")]}${index}{crits[i]}',
                                                                                                    'format': formats[
                                                                                                        i]})
-        writer.save()
+        writer._save()
 
+
+# init = programm()
+# result = init.get_parse_data()
+# init.create()
+# tag_data = init.open()
+# generated_data ,df = init.parse(result, tag_data)
+# init.generate_exel(generated_data,df)

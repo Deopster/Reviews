@@ -1,17 +1,5 @@
-from dash import Dash, callback
-from generate import programm
-import os
-import numpy as np
-import plotly
-import plotly.graph_objs as go
-from datetime import date
-import dash
 from dash import html,dcc
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output, State
-import dash
-import pandas as pd
-from components import grafpath
 
 graf = dbc.Card(
     [

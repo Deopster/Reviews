@@ -1,7 +1,6 @@
 from dash import Dash, dcc, html, dash_table, Input, Output, callback, State
 import dash_bootstrap_components as dbc
 import plotly.express as px
-from dash_bootstrap_templates import load_figure_template
 
 email_input = html.Div(
     [
